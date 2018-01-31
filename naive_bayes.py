@@ -3,6 +3,8 @@
 """
 Naive bayes implementation in Python from scratch.
 
+Python Version: 3.6.3
+
 Adapted from Jason Brownlee at Machine Learning Mastery.
 Source: https://machinelearningmastery.com/naive-bayes-classifier-scratch-python/
 """
