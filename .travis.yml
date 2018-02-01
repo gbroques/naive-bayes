@@ -1,5 +1,5 @@
 language: python
 python:
- - "3.3"
+ - "3.6.3"
 script:
   - python test_naive_bayes.py
