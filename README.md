@@ -1,5 +1,7 @@
 # Naive Bayes from Scratch in Python
 
+[![Build Status](https://travis-ci.org/gbroques/naive-bayes.svg?branch=master)](https://travis-ci.org/gbroques/naive-bayes)
+
 ## Dataset
 
 **Problem:** Predict the onset of diabetes.
