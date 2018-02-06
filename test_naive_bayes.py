@@ -4,11 +4,11 @@ import os
 import naive_bayes
 
 test_data = [[6, 148, 72, 35, 0, 33.6, 0.627, 50, 1],
-             [1, 85,  66, 29, 0, 26.6, 0.351, 31, 0],
-             [8, 183, 64, 0 , 0, 23.3, 0.672, 32, 1]]
+             [1, 85, 66, 29, 0, 26.6, 0.351, 31, 0],
+             [8, 183, 64, 0, 0, 23.3, 0.672, 32, 1]]
+
 
 class TestNaiveBayes(unittest.TestCase):
-
     filename = 'test.csv'
 
     @classmethod
@@ -44,6 +44,39 @@ class TestNaiveBayes(unittest.TestCase):
         test_size = num_rows - train_size
         self.assertEqual(len(train), train_size)
         self.assertEqual(len(test), test_size)
+
+    def test_separate_by_class(self):
+        dataset = [[1, 20, 1], [2, 21, 0], [3, 22, 1]]
+
+        separated = naive_bayes.separate_by_class(dataset)
+
+        expected_separation = {
+            0: [
+                [2, 21, 0]
+            ],
+            1: [
+                [1, 20, 1],
+                [3, 22, 1]
+            ]
+        }
+        self.assertEqual(separated, expected_separation)
+
+    def test_mean(self):
+        numbers = [1, 2, 3, 4, 5]
+        
+        avg = naive_bayes.mean(numbers)
+
+        expected_mean = 3.0
+        self.assertEqual(avg, expected_mean)
+
+    def test_std_dev(self):
+        numbers = [1, 2, 3, 4, 5]
+
+        stdev = naive_bayes.std_dev(numbers)
+
+        expected_stdev = 1.5811388300841898
+        self.assertEqual(stdev, expected_stdev)
+
 
 if __name__ == '__main__':
     unittest.main()
