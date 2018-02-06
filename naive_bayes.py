@@ -27,19 +27,27 @@ def main():
     print('Split {0} rows into train with {1} and test with {2}'.format(len(dataset), train, test))
 
     # 2. Summarize Data
-    #     - Separate data by class
-
+    # Separate data by class
     dataset = [[1, 20, 1], [2, 21, 0], [3, 22, 1]]
     separated = separate_by_class(dataset)
     print('Separated instances: {0}'.format(separated))
 
-    #     - Calculate mean
-    #     - Calculate standard deviation
-        
+    #     - Calculate mean and standard deviation        
     numbers = [1,2,3,4,5]
-    print('Summary of {0}: mean={1}, stdev={2}'.format(numbers, mean(numbers), std_dev(numbers)))
-    #     - Summarize dataset
-    #     - Summarize attributes by class
+    print('Summary of {0}: mean={1}, stdev={2}'.format(numbers, mean(numbers), stdev(numbers)))
+
+    # Summarize dataset
+    dataset = [[1,20,0], [2,21,1], [3,22,0]]
+    summary = summarize(dataset)
+    print('Attribute summaries: {0}'.format(summary))
+
+    # Summarize attributes by class
+    dataset = [[1, 20, 1],
+               [2, 21, 0],
+               [3, 22, 1],
+               [4, 22, 0]]
+    summary = summarize_by_class(dataset)
+    print('Summary by class value: {0}'.format(summary))
 
 
 def load_csv(filename):
@@ -107,7 +115,7 @@ def mean(numbers):
     return sum(numbers) / total
 
 
-def std_dev(numbers):
+def stdev(numbers):
     """Calculate the standard deviation for a list of numbers.
 
     Use the N - 1 method, or Bessel's correction,
@@ -122,6 +130,26 @@ def std_dev(numbers):
     total = float(len(numbers))
     variance = sum(distances_to_mean) / (total - 1)
     return math.sqrt(variance)
+
+
+def summarize(dataset):
+    """Summarize data set by calculating mean and standard deviation for each attribute.
+
+    :param dataset: The dataset. Only supports lists.
+    :return: A list of tuples representing the mean,
+             and standard deviation for each attribute.
+    """
+
+    summaries = [(mean(attr), stdev(attr)) for attr in zip(*dataset)]
+    del summaries[-1]
+    return summaries
+
+def summarize_by_class(dataset):
+    separated = separate_by_class(dataset)
+    summaries = {}
+    for class_, instances in separated.items():
+        summaries[class_] = summarize(instances)
+    return summaries
 
 if __name__ == '__main__':
     main()

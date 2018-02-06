@@ -69,14 +69,36 @@ class TestNaiveBayes(unittest.TestCase):
         expected_mean = 3.0
         self.assertEqual(avg, expected_mean)
 
-    def test_std_dev(self):
+    def test_stdev(self):
         numbers = [1, 2, 3, 4, 5]
 
-        stdev = naive_bayes.std_dev(numbers)
+        stdev = naive_bayes.stdev(numbers)
 
         expected_stdev = 1.5811388300841898
         self.assertEqual(stdev, expected_stdev)
 
+    def test_summarize(self):
+        dataset = [[1, 20, 1], [2, 21, 0], [3, 22, 1]]
+
+        summaries = naive_bayes.summarize(dataset)
+
+        expected_summaries = [(2.0, 1.0), (21.0, 1.0)]
+        self.assertEqual(summaries, expected_summaries)
+
+    def test_summarize_by_class(self):
+        dataset = [[1, 20, 1],
+                   [2, 21, 0],
+                   [3, 22, 1],
+                   [4, 22, 0]]
+        summary = naive_bayes.summarize_by_class(dataset)
+
+        expected_summary = {
+            0: [(3.0, 1.4142135623730951),
+                (21.5, 0.7071067811865476)],
+            1: [(2.0, 1.4142135623730951),
+                (21.0, 1.4142135623730951)]
+        }
+        self.assertEqual(summary, expected_summary)
 
 if __name__ == '__main__':
     unittest.main()
