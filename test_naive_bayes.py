@@ -1,6 +1,7 @@
-import unittest
 import csv
 import os
+import unittest
+
 import naive_bayes
 
 test_data = [[6, 148, 72, 35, 0, 33.6, 0.627, 50, 1],
@@ -63,7 +64,7 @@ class TestNaiveBayes(unittest.TestCase):
 
     def test_mean(self):
         numbers = [1, 2, 3, 4, 5]
-        
+
         avg = naive_bayes.mean(numbers)
 
         expected_mean = 3.0
@@ -99,6 +100,17 @@ class TestNaiveBayes(unittest.TestCase):
                 (21.0, 1.4142135623730951)]
         }
         self.assertEqual(summary, expected_summary)
+
+    def test_calculate_probability(self):
+        expected_probability = 0.0624896575937
+        x = 71.5
+        mean = 73
+        stdev = 6.2
+
+        probability = naive_bayes.calculate_probability(x, mean, stdev)
+
+        self.assertAlmostEqual(expected_probability, probability)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -10,34 +10,38 @@ Source: https://machinelearningmastery.com/naive-bayes-classifier-scratch-python
 """
 
 import csv
-import random
 import math
+import random
+
 
 def main():
     # 1. Handle Data
-    #     - Load the data from CSV file
-    #     - Split data into training and test sets
+    # --------------
+
+    # Load the data from CSV file
     filename = 'pima-indians-diabetes.csv'
     dataset = load_csv(filename)
     print('Loaded data file {0} with {1} rows'.format(filename, len(dataset)))
-
+    #     - Split data into training and test sets
     dataset = [[1], [2], [3], [4], [5]]
     split_ratio = 0.67
     train, test = split_dataset(dataset, split_ratio)
     print('Split {0} rows into train with {1} and test with {2}'.format(len(dataset), train, test))
 
     # 2. Summarize Data
+    # -----------------
+
     # Separate data by class
     dataset = [[1, 20, 1], [2, 21, 0], [3, 22, 1]]
     separated = separate_by_class(dataset)
     print('Separated instances: {0}'.format(separated))
 
-    #     - Calculate mean and standard deviation        
-    numbers = [1,2,3,4,5]
+    # Calculate mean and standard deviation        
+    numbers = [1, 2, 3, 4, 5]
     print('Summary of {0}: mean={1}, stdev={2}'.format(numbers, mean(numbers), stdev(numbers)))
 
     # Summarize dataset
-    dataset = [[1,20,0], [2,21,1], [3,22,0]]
+    dataset = [[1, 20, 0], [2, 21, 1], [3, 22, 0]]
     summary = summarize(dataset)
     print('Attribute summaries: {0}'.format(summary))
 
@@ -48,6 +52,18 @@ def main():
                [4, 22, 0]]
     summary = summarize_by_class(dataset)
     print('Summary by class value: {0}'.format(summary))
+
+    # 3. Make Prediction
+    # ------------------
+    # Calculate Gaussian Probability Density Function
+    x = 71.5
+    avg = 73
+    std_dev = 6.2
+    probability = calculate_probability(x, avg, std_dev)
+    print('Probability of belonging to this class : {0}'.format(probability))
+    # Calculate Class Probabilities
+    # Make a Prediction
+    # Estimate Accuracy
 
 
 def load_csv(filename):
@@ -144,12 +160,20 @@ def summarize(dataset):
     del summaries[-1]
     return summaries
 
+
 def summarize_by_class(dataset):
     separated = separate_by_class(dataset)
     summaries = {}
     for class_, instances in separated.items():
         summaries[class_] = summarize(instances)
     return summaries
+
+
+def calculate_probability(x, avg, std_dev):
+    """Calculate gaussian probability density function."""
+    exponent = math.exp(-(math.pow(x - avg, 2) / (2 * math.pow(std_dev, 2))))
+    return (1 / (math.sqrt(2 * math.pi) * std_dev)) * exponent
+
 
 if __name__ == '__main__':
     main()
