@@ -61,8 +61,15 @@ def main():
     std_dev = 6.2
     probability = calculate_probability(x, avg, std_dev)
     print('Probability of belonging to this class : {0}'.format(probability))
-    # Calculate Class Probabilities
+
+    #  Calculate Class Probabilities
+    summaries = {0: [(1, 0.5)], 1: [(20, 5.0)]}
+    input_vector = [1.1, '?']
+    probabilities = calculate_class_probabilities(summaries, input_vector)
+    print('Probabilities for each class: {0}'.format(probabilities))
+
     # Make a Prediction
+
     # Estimate Accuracy
 
 
@@ -72,7 +79,6 @@ def load_csv(filename):
     :param filename: The name of the CSV file to load.
     :return: A list of the dataset.
     """
-
     f = open(filename)
     lines = csv.reader(f)
     dataset = list(lines)
@@ -91,7 +97,6 @@ def split_dataset(dataset, train_ratio):
         The proportion of the dataset to include in the training set.
     :return: A list containing the training set and test set.
     """
-
     train_size = int(len(dataset) * train_ratio)
     train_set = []
     copy = list(dataset)
@@ -110,7 +115,6 @@ def separate_by_class(dataset):
     :return: A dictionary where keys are classes,
              and values are a list of instances belonging to that class.
     """
-
     separated = {}
     for i in range(len(dataset)):
         vector = dataset[i]
@@ -126,7 +130,6 @@ def mean(numbers):
     :param numbers: A list of numbers.
     :return: The mean.
     """
-
     total = float(len(numbers))
     return sum(numbers) / total
 
@@ -140,7 +143,6 @@ def stdev(numbers):
     :param numbers: A list of numbers.
     :return: The standard deviation.
     """
-
     avg = mean(numbers)
     distances_to_mean = [pow(x - avg, 2) for x in numbers]
     total = float(len(numbers))
@@ -155,13 +157,18 @@ def summarize(dataset):
     :return: A list of tuples representing the mean,
              and standard deviation for each attribute.
     """
-
     summaries = [(mean(attr), stdev(attr)) for attr in zip(*dataset)]
     del summaries[-1]
     return summaries
 
 
 def summarize_by_class(dataset):
+    """Get the mean and standard deviation of each attribute for the instances of each class.
+
+    :param dataset: The dataset. Only supports lists.
+    :return: A list of tuples with the mean and standard deviation for each attribute,
+             for all the instances of each class.
+    """
     separated = separate_by_class(dataset)
     summaries = {}
     for class_, instances in separated.items():
@@ -170,9 +177,33 @@ def summarize_by_class(dataset):
 
 
 def calculate_probability(x, avg, std_dev):
-    """Calculate gaussian probability density function."""
+    """Calculate gaussian probability density function.
+
+    :param x: Attribute value.
+    :param avg: Mean or average.
+    :param std_dev: Standard deviation.
+    :return: Likelihood that the attribute belongs to the class.
+    """
     exponent = math.exp(-(math.pow(x - avg, 2) / (2 * math.pow(std_dev, 2))))
     return (1 / (math.sqrt(2 * math.pi) * std_dev)) * exponent
+
+
+def calculate_class_probabilities(summaries, input_vector):
+    """Calculate probabilities of the record belonging to each class.
+
+    :param summaries: A list of tuples containing the mean,
+                      and standard deviation for each attribute.
+    :param input_vector: Test record to classify.
+    :return: Likelihood of the test record belonging to each class.
+    """
+    probabilities = {}
+    for class_value, class_summaries in summaries.items():
+        probabilities[class_value] = 1
+        for i in range(len(class_summaries)):
+            avg, std_dev = class_summaries[i]
+            x = input_vector[i]
+            probabilities[class_value] *= calculate_probability(x, avg, std_dev)
+    return probabilities
 
 
 if __name__ == '__main__':

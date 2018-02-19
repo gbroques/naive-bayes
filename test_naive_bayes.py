@@ -111,6 +111,15 @@ class TestNaiveBayes(unittest.TestCase):
 
         self.assertAlmostEqual(expected_probability, probability)
 
+    def test_calculate_class_probabilities(self):
+        expected_class_zero_probability = 0.7820853879509118
+        expected_class_one_probability = 6.298736258150442e-05
+        summaries = {0: [(1, 0.5)], 1: [(20, 5.0)]}
+        input_vector = [1.1, '?']
+        probabilities = naive_bayes.calculate_class_probabilities(summaries, input_vector)
+        self.assertAlmostEqual(expected_class_zero_probability, probabilities[0])
+        self.assertAlmostEqual(expected_class_one_probability, probabilities[1])
+
 
 if __name__ == '__main__':
     unittest.main()
