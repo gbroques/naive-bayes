@@ -69,6 +69,13 @@ def main():
     print('Probabilities for each class: {0}'.format(probabilities))
 
     # Make a Prediction
+    summaries = {
+        'A': [(1, 0.5)],
+        'B': [(20, 5.0)]
+    }
+    input_vector = [1.1, '?']
+    result = predict(summaries, input_vector)
+    print('Prediction: {0}'.format(result))
 
     # Estimate Accuracy
 
@@ -204,6 +211,22 @@ def calculate_class_probabilities(summaries, input_vector):
             x = input_vector[i]
             probabilities[class_value] *= calculate_probability(x, avg, std_dev)
     return probabilities
+
+
+def predict(summaries, input_vector):
+    """Predict the class an input record belongs to.
+
+    :param summaries: Mean and standard deviation for each attribute.
+    :param input_vector: The input record to predict the class for.
+    :return: The class the input record belongs to.
+    """
+    probabilities = calculate_class_probabilities(summaries, input_vector)
+    best_label, best_prob = None, -1
+    for class_value, probability in probabilities.items():
+        if best_label is None or probability > best_prob:
+            best_prob = probability
+            best_label = class_value
+    return best_label
 
 
 if __name__ == '__main__':

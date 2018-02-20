@@ -120,6 +120,19 @@ class TestNaiveBayes(unittest.TestCase):
         self.assertAlmostEqual(expected_class_zero_probability, probabilities[0])
         self.assertAlmostEqual(expected_class_one_probability, probabilities[1])
 
+    def test_predict(self):
+        expected_prediction = 'A'
+
+        summaries = {
+            'A': [(1, 0.5)],
+            'B': [(20, 5.0)]
+        }
+        input_vector = [1.1, '?']
+
+        prediction = naive_bayes.predict(summaries, input_vector)
+
+        self.assertEqual(expected_prediction, prediction)
+
 
 if __name__ == '__main__':
     unittest.main()
