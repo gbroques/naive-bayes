@@ -145,6 +145,19 @@ class TestNaiveBayes(unittest.TestCase):
 
         self.assertEqual(expected_predictions, predictions)
 
+    def test_get_accuracy(self):
+        expected_accuracy = 66.6666667
+        test_set = [
+            [1, 1, 1, 'a'],
+            [2, 2, 2, 'a'],
+            [3, 3, 3, 'b']
+        ]
+        predictions = ['a', 'a', 'a']
+
+        accuracy = naive_bayes.get_accuracy(test_set, predictions)
+
+        self.assertAlmostEqual(expected_accuracy, accuracy)
+
 
 if __name__ == '__main__':
     unittest.main()

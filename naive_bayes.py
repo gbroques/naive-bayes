@@ -87,6 +87,14 @@ def main():
     print('Predictions: {0}'.format(predictions))
 
     # Estimate Accuracy
+    test_set = [
+        [1, 1, 1, 'a'],
+        [2, 2, 2, 'a'],
+        [3, 3, 3, 'b']
+    ]
+    predictions = ['a', 'a', 'a']
+    accuracy = get_accuracy(test_set, predictions)
+    print('Accuracy: {0}'.format(accuracy))
 
 
 def load_csv(filename):
@@ -250,6 +258,21 @@ def get_predictions(summaries, test_set):
         result = predict(summaries, test_set[i])
         predictions.append(result)
     return predictions
+
+
+def get_accuracy(test_set, predictions):
+    """Get accuracy of predictions on test set.
+
+    :param test_set: The set of records to test the model with.
+    :param predictions: Predictions for the test set.
+    :return: The accuracy of the model.
+    """
+    num_correct = 0
+    num_records = len(test_set)
+    for x in range(num_records):
+        if test_set[x][-1] == predictions[x]:
+            num_correct += 1
+    return (num_correct / float(num_records)) * 100.0
 
 
 if __name__ == '__main__':
