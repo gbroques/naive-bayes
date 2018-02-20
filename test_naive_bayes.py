@@ -133,6 +133,18 @@ class TestNaiveBayes(unittest.TestCase):
 
         self.assertEqual(expected_prediction, prediction)
 
+    def test_get_predictions(self):
+        expected_predictions = ['A', 'B']
+        summaries = {
+            'A': [(1, 0.5)],
+            'B': [(20, 5.0)]
+        }
+        test_set = [[1.1, '?'], [19.1, '?']]
+
+        predictions = naive_bayes.get_predictions(summaries, test_set)
+
+        self.assertEqual(expected_predictions, predictions)
+
 
 if __name__ == '__main__':
     unittest.main()

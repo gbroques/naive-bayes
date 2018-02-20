@@ -77,6 +77,15 @@ def main():
     result = predict(summaries, input_vector)
     print('Prediction: {0}'.format(result))
 
+    # Make Predictions
+    summaries = {
+        'A': [(1, 0.5)],
+        'B': [(20, 5.0)]
+    }
+    test_set = [[1.1, '?'], [19.1, '?']]
+    predictions = get_predictions(summaries, test_set)
+    print('Predictions: {0}'.format(predictions))
+
     # Estimate Accuracy
 
 
@@ -227,6 +236,20 @@ def predict(summaries, input_vector):
             best_prob = probability
             best_label = class_value
     return best_label
+
+
+def get_predictions(summaries, test_set):
+    """Get predictions for each instance in the test set.
+
+    :param summaries: Mean and standard deviation for each attribute.
+    :param test_set: Set of data used for testing the model.
+    :return: Class predictions for each instance in the test set.
+    """
+    predictions = []
+    for i in range(len(test_set)):
+        result = predict(summaries, test_set[i])
+        predictions.append(result)
+    return predictions
 
 
 if __name__ == '__main__':
