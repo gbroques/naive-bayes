@@ -62,22 +62,6 @@ class TestNaiveBayes(unittest.TestCase):
         }
         self.assertEqual(separated, expected_separation)
 
-    def test_mean(self):
-        numbers = [1, 2, 3, 4, 5]
-
-        avg = naive_bayes.mean(numbers)
-
-        expected_mean = 3.0
-        self.assertEqual(avg, expected_mean)
-
-    def test_stdev(self):
-        numbers = [1, 2, 3, 4, 5]
-
-        stdev = naive_bayes.stdev(numbers)
-
-        expected_stdev = 1.5811388300841898
-        self.assertEqual(stdev, expected_stdev)
-
     def test_summarize(self):
         dataset = [[1, 20, 1], [2, 21, 0], [3, 22, 1]]
 
