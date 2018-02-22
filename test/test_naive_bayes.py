@@ -1,8 +1,6 @@
-import csv
-import os
 import unittest
 
-import naive_bayes
+from naive_bayes import NaiveBayes
 
 test_data = [[6, 148, 72, 35, 0, 33.6, 0.627, 50, 1],
              [1, 85, 66, 29, 0, 26.6, 0.351, 31, 0],
@@ -14,23 +12,12 @@ class TestNaiveBayes(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.create_csv(cls.filename)
-
-    @classmethod
-    def tearDownClass(cls):
-        os.remove(cls.filename)
-
-    @classmethod
-    def create_csv(cls, filename):
-        with open(filename, 'w') as f:
-            writer = csv.writer(f)
-            for row in test_data:
-                writer.writerow(row)
+        cls.clf = NaiveBayes()
 
     def test_summarize(self):
         dataset = [[1, 20, 1], [2, 21, 0], [3, 22, 1]]
 
-        summaries = naive_bayes.summarize(dataset)
+        summaries = self.clf.summarize(dataset)
 
         expected_summaries = [(2.0, 1.0), (21.0, 1.0)]
         self.assertEqual(summaries, expected_summaries)
@@ -40,7 +27,7 @@ class TestNaiveBayes(unittest.TestCase):
                    [2, 21, 0],
                    [3, 22, 1],
                    [4, 22, 0]]
-        summary = naive_bayes.summarize_by_class(dataset)
+        summary = self.clf.summarize_by_class(dataset)
 
         expected_summary = {
             0: [(3.0, 1.4142135623730951),
@@ -50,13 +37,13 @@ class TestNaiveBayes(unittest.TestCase):
         }
         self.assertEqual(summary, expected_summary)
 
-    def test_calculate_probability(self):
+    def test_gaussian_pdf(self):
         expected_probability = 0.0624896575937
         x = 71.5
         mean = 73
         stdev = 6.2
 
-        probability = naive_bayes.calculate_probability(x, mean, stdev)
+        probability = self.clf.gaussian_pdf(x, mean, stdev)
 
         self.assertAlmostEqual(expected_probability, probability)
 
@@ -65,7 +52,7 @@ class TestNaiveBayes(unittest.TestCase):
         expected_class_one_probability = 6.298736258150442e-05
         summaries = {0: [(1, 0.5)], 1: [(20, 5.0)]}
         input_vector = [1.1, '?']
-        probabilities = naive_bayes.calculate_class_probabilities(summaries, input_vector)
+        probabilities = self.clf.calculate_class_probabilities(summaries, input_vector)
         self.assertAlmostEqual(expected_class_zero_probability, probabilities[0])
         self.assertAlmostEqual(expected_class_one_probability, probabilities[1])
 
@@ -78,7 +65,7 @@ class TestNaiveBayes(unittest.TestCase):
         }
         input_vector = [1.1, '?']
 
-        prediction = naive_bayes.predict(summaries, input_vector)
+        prediction = self.clf.predict_with_summaries(summaries, input_vector)
 
         self.assertEqual(expected_prediction, prediction)
 
@@ -90,7 +77,7 @@ class TestNaiveBayes(unittest.TestCase):
         }
         test_set = [[1.1, '?'], [19.1, '?']]
 
-        predictions = naive_bayes.get_predictions(summaries, test_set)
+        predictions = self.clf.get_predictions(summaries, test_set)
 
         self.assertEqual(expected_predictions, predictions)
 
