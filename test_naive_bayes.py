@@ -53,18 +53,6 @@ class TestNaiveBayes(unittest.TestCase):
 
         self.assertEqual(expected_dataset, dataset_without_last_column)
 
-    def test_split_dataset(self):
-        dataset = naive_bayes.load_csv(self.filename)
-
-        split_ratio = 0.67
-        train, test = naive_bayes.split_dataset(dataset, split_ratio)
-
-        num_rows = len(dataset)
-        train_size = int(num_rows * split_ratio)
-        test_size = num_rows - train_size
-        self.assertEqual(len(train), train_size)
-        self.assertEqual(len(test), test_size)
-
     def test_separate_by_class(self):
         dataset = [[1, 20, 1], [2, 21, 0], [3, 22, 1]]
 
@@ -147,19 +135,6 @@ class TestNaiveBayes(unittest.TestCase):
         predictions = naive_bayes.get_predictions(summaries, test_set)
 
         self.assertEqual(expected_predictions, predictions)
-
-    def test_get_accuracy(self):
-        expected_accuracy = 66.6666667
-        test_set = [
-            [1, 1, 1, 'a'],
-            [2, 2, 2, 'a'],
-            [3, 3, 3, 'b']
-        ]
-        predictions = ['a', 'a', 'a']
-
-        accuracy = naive_bayes.get_accuracy(test_set, predictions)
-
-        self.assertAlmostEqual(expected_accuracy, accuracy)
 
 
 if __name__ == '__main__':

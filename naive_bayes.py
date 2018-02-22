@@ -11,8 +11,8 @@ Source: https://machinelearningmastery.com/naive-bayes-classifier-scratch-python
 
 import csv
 import math
-import random
 
+from model_selection import get_accuracy
 from statistics import mean
 from statistics import stdev
 
@@ -41,24 +41,6 @@ def load_csv(filename):
         dataset[i] = [float(x) for x in dataset[i]]
     f.close()
     return dataset
-
-
-def split_dataset(dataset, train_ratio):
-    """Split the dataset into a training set and test set.
-    Splits the data randomly into the desired ratio.
-
-    :param dataset: The dataset to split. Only supports lists.
-    :param train_ratio: float
-        The proportion of the dataset to include in the training set.
-    :return: A list containing the training set and test set.
-    """
-    train_size = int(len(dataset) * train_ratio)
-    train_set = []
-    copy = list(dataset)
-    while len(train_set) < train_size:
-        index = random.randrange(len(copy))
-        train_set.append(copy.pop(index))
-    return [train_set, copy]
 
 
 def separate_by_class(dataset):
@@ -103,6 +85,33 @@ def summarize_by_class(dataset):
     for class_, instances in separated.items():
         summaries[class_] = summarize(instances)
     return summaries
+
+
+def split_mixed_dataset(dataset, continuous_columns):
+    """Splits a dataset with continuous and discrete values into two separate datasets.
+
+    :param dataset: A dataset with continuous and discrete values.
+    :param continuous_columns: A binary array with 1 denoting which columns are continuous,
+                               and 0 denoting which columns are discrete.
+    :return: A tuple containing the continuous dataset first, followed by the discrete dataset.
+    """
+    continuous_dataset, discrete_dataset = [], []
+    for i in range(len(dataset)):
+        continuous_dataset.append([])
+        discrete_dataset.append([])
+        for j in range(len(continuous_columns)):
+            if continuous_columns[j]:
+                continuous_dataset[i].append(dataset[i][j])
+            else:
+                discrete_dataset[i].append(dataset[i][j])
+        continuous_dataset[i].append(dataset[i][-1])
+        discrete_dataset[i].append(dataset[i][-1])
+
+    return continuous_dataset, discrete_dataset
+
+
+def remove_last_column(dataset):
+    return [row[:-1] for row in dataset]
 
 
 def calculate_probability(x, avg, std_dev):
@@ -163,48 +172,6 @@ def get_predictions(summaries, test_set):
         result = predict(summaries, test_set[i])
         predictions.append(result)
     return predictions
-
-
-def get_accuracy(test_set, predictions):
-    """Get accuracy of predictions on test set.
-
-    :param test_set: The set of records to test the model with.
-    :param predictions: Predictions for the test set.
-    :return: The accuracy of the model.
-    """
-    num_correct = 0
-    num_records = len(test_set)
-    for x in range(num_records):
-        if test_set[x][-1] == predictions[x]:
-            num_correct += 1
-    return (num_correct / float(num_records)) * 100.0
-
-
-def split_mixed_dataset(dataset, continuous_columns):
-    """Splits a dataset with continuous and discrete values into two separate datasets.
-
-    :param dataset: A dataset with continuous and discrete values.
-    :param continuous_columns: A binary array with 1 denoting which columns are continuous,
-                               and 0 denoting which columns are discrete.
-    :return: A tuple containing the continuous dataset first, followed by the discrete dataset.
-    """
-    continuous_dataset, discrete_dataset = [], []
-    for i in range(len(dataset)):
-        continuous_dataset.append([])
-        discrete_dataset.append([])
-        for j in range(len(continuous_columns)):
-            if continuous_columns[j]:
-                continuous_dataset[i].append(dataset[i][j])
-            else:
-                discrete_dataset[i].append(dataset[i][j])
-        continuous_dataset[i].append(dataset[i][-1])
-        discrete_dataset[i].append(dataset[i][-1])
-
-    return continuous_dataset, discrete_dataset
-
-
-def remove_last_column(dataset):
-    return [row[:-1] for row in dataset]
 
 
 if __name__ == '__main__':
