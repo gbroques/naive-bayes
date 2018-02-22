@@ -5,7 +5,7 @@ import unittest
 from util.csv import load_csv
 from util.data import remove_last_column
 from util.data import separate_by_class
-from util.data import split_mixed_dataset
+from util.data import split_continuous_features
 
 test_data = [[6, 148, 72, 35, 0, 33.6, 0.627, 50, 1],
              [1, 85, 66, 29, 0, 26.6, 0.351, 31, 0],
@@ -38,12 +38,12 @@ class TestUtil(unittest.TestCase):
         self.assertEqual(dataset[-1], test_data[-1])
 
     def test_split_mixed_dataset(self):
-        dataset = [[1, 0, 125000, 0], [0, 1, 100000, 0]]
-        expected_continuous_dataset = [[125000, 0], [100000, 0]]
-        expected_discrete_dataset = [[1, 0, 0], [0, 1, 0]]
+        dataset = [[1, 0, 125000], [0, 1, 100000]]
+        expected_continuous_dataset = [[125000], [100000]]
+        expected_discrete_dataset = [[1, 0], [0, 1]]
 
         continuous_columns = [0, 0, 1]
-        continuous_dataset, discrete_dataset = split_mixed_dataset(dataset, continuous_columns)
+        continuous_dataset, discrete_dataset = split_continuous_features(dataset, continuous_columns)
 
         self.assertEqual(expected_continuous_dataset, continuous_dataset)
         self.assertEqual(expected_discrete_dataset, discrete_dataset)
@@ -57,18 +57,14 @@ class TestUtil(unittest.TestCase):
         self.assertEqual(expected_dataset, dataset_without_last_column)
 
     def test_separate_by_class(self):
-        dataset = [[1, 20, 1], [2, 21, 0], [3, 22, 1]]
+        X = [[1, 20], [2, 21], [3, 22]]
+        y = [1, 0, 1]
 
-        separated = separate_by_class(dataset)
+        separated = separate_by_class(X, y)
 
         expected_separation = {
-            0: [
-                [2, 21, 0]
-            ],
-            1: [
-                [1, 20, 1],
-                [3, 22, 1]
-            ]
+            0: [[2, 21]],
+            1: [[1, 20], [3, 22]]
         }
         self.assertEqual(separated, expected_separation)
 

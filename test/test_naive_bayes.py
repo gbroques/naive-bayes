@@ -12,22 +12,20 @@ class TestNaiveBayes(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.clf = NaiveBayes()
+        cls.clf = NaiveBayes([])
 
     def test_summarize(self):
-        dataset = [[1, 20, 1], [2, 21, 0], [3, 22, 1]]
+        X = [[1, 20], [2, 21], [3, 22]]
 
-        summaries = self.clf.summarize(dataset)
+        summaries = self.clf.summarize(X)
 
         expected_summaries = [(2.0, 1.0), (21.0, 1.0)]
         self.assertEqual(summaries, expected_summaries)
 
     def test_summarize_by_class(self):
-        dataset = [[1, 20, 1],
-                   [2, 21, 0],
-                   [3, 22, 1],
-                   [4, 22, 0]]
-        summary = self.clf.summarize_by_class(dataset)
+        X = [[1, 20], [2, 21], [3, 22], [4, 22]]
+        y = [1, 0, 1, 0]
+        summary = self.clf.summarize_by_class(X, y)
 
         expected_summary = {
             0: [(3.0, 1.4142135623730951),

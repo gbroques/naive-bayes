@@ -12,17 +12,17 @@ Source: https://machinelearningmastery.com/naive-bayes-classifier-scratch-python
 from model_selection import get_accuracy
 from naive_bayes import NaiveBayes
 from util.csv import load_csv
-from util.data import split_mixed_dataset
 
 
 def main():
     filename = 'loan-defaulters.csv'
     dataset = load_csv(filename)
+    X = [row[:-1] for row in dataset]
+    y = [row[-1] for row in dataset]
     continuous_columns = [0, 0, 1]
-    continuous_dataset, discrete_dataset = split_mixed_dataset(dataset, continuous_columns)
-    clf = NaiveBayes()
-    summaries = clf.summarize_by_class(continuous_dataset)
-    predictions = clf.get_predictions(summaries, dataset)
+    clf = NaiveBayes(continuous_columns)
+    clf.fit(X, y)
+    predictions = clf.predict(X)
     accuracy = get_accuracy(dataset, predictions)
     print('Model Accuracy: {0}%'.format(accuracy))
 

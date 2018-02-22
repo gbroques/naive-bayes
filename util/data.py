@@ -3,43 +3,47 @@ Utility methods for munging on data.
 """
 
 
-def separate_by_class(dataset):
+def separate_by_class(X, y):
     """Separate training dataset by class.
 
     Assumes the last element in each row is the class.
 
-    :param dataset: List of training data.
+    :param X: Training vectors with dimension m x n,
+              where m is the number of samples,
+              and n is the number of features.
+    :param y: Target values with dimension m,
+              where m is the number of samples.
     :return: A dictionary where keys are classes,
              and values are a list of instances belonging to that class.
     """
     separated = {}
-    for i in range(len(dataset)):
-        vector = dataset[i]
-        if vector[-1] not in separated:
-            separated[vector[-1]] = []
-        separated[vector[-1]].append(vector)
+    for i in range(len(X)):
+        vector = X[i]
+        if y[i] not in separated:
+            separated[y[i]] = []
+        separated[y[i]].append(vector)
     return separated
 
 
-def split_mixed_dataset(dataset, continuous_columns):
+def split_continuous_features(X, continuous_columns):
     """Splits a dataset with continuous and discrete values into two separate datasets.
 
-    :param dataset: A dataset with continuous and discrete values.
+    :param X: Training vectors with dimension m x n,
+              where m is the number of samples,
+              and n is the number of features.
     :param continuous_columns: A binary array with 1 denoting which columns are continuous,
                                and 0 denoting which columns are discrete.
     :return: A tuple containing the continuous dataset first, followed by the discrete dataset.
     """
     continuous_dataset, discrete_dataset = [], []
-    for i in range(len(dataset)):
+    for i in range(len(X)):
         continuous_dataset.append([])
         discrete_dataset.append([])
         for j in range(len(continuous_columns)):
             if continuous_columns[j]:
-                continuous_dataset[i].append(dataset[i][j])
+                continuous_dataset[i].append(X[i][j])
             else:
-                discrete_dataset[i].append(dataset[i][j])
-        continuous_dataset[i].append(dataset[i][-1])
-        discrete_dataset[i].append(dataset[i][-1])
+                discrete_dataset[i].append(X[i][j])
 
     return continuous_dataset, discrete_dataset
 
