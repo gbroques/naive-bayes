@@ -18,15 +18,13 @@ from statistics import stdev
 
 
 def main():
-    filename = 'pima-indians-diabetes.csv'
-    split_ratio = 0.67
+    filename = 'loan-defaulters.csv'
     dataset = load_csv(filename)
-    training_set, test_set = split_dataset(dataset, split_ratio)
-
-    summaries = summarize_by_class(training_set)
-
-    predictions = get_predictions(summaries, test_set)
-    accuracy = get_accuracy(test_set, predictions)
+    continuous_columns = [0, 0, 1]
+    continuous_dataset, discrete_dataset = split_mixed_dataset(dataset, continuous_columns)
+    summaries = summarize_by_class(continuous_dataset)
+    predictions = get_predictions(summaries, dataset)
+    accuracy = get_accuracy(dataset, predictions)
     print('Model Accuracy: {0}%'.format(accuracy))
 
 
@@ -180,6 +178,33 @@ def get_accuracy(test_set, predictions):
         if test_set[x][-1] == predictions[x]:
             num_correct += 1
     return (num_correct / float(num_records)) * 100.0
+
+
+def split_mixed_dataset(dataset, continuous_columns):
+    """Splits a dataset with continuous and discrete values into two separate datasets.
+
+    :param dataset: A dataset with continuous and discrete values.
+    :param continuous_columns: A binary array with 1 denoting which columns are continuous,
+                               and 0 denoting which columns are discrete.
+    :return: A tuple containing the continuous dataset first, followed by the discrete dataset.
+    """
+    continuous_dataset, discrete_dataset = [], []
+    for i in range(len(dataset)):
+        continuous_dataset.append([])
+        discrete_dataset.append([])
+        for j in range(len(continuous_columns)):
+            if continuous_columns[j]:
+                continuous_dataset[i].append(dataset[i][j])
+            else:
+                discrete_dataset[i].append(dataset[i][j])
+        continuous_dataset[i].append(dataset[i][-1])
+        discrete_dataset[i].append(dataset[i][-1])
+
+    return continuous_dataset, discrete_dataset
+
+
+def remove_last_column(dataset):
+    return [row[:-1] for row in dataset]
 
 
 if __name__ == '__main__':

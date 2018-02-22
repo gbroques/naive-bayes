@@ -22,8 +22,8 @@ class TestNaiveBayes(unittest.TestCase):
 
     @classmethod
     def create_csv(cls, filename):
-        with open(filename, 'w') as file:
-            writer = csv.writer(file)
+        with open(filename, 'w') as f:
+            writer = csv.writer(f)
             for row in test_data:
                 writer.writerow(row)
 
@@ -33,6 +33,25 @@ class TestNaiveBayes(unittest.TestCase):
         self.assertEqual(len(dataset), len(test_data))
 
         self.assertEqual(dataset[-1], test_data[-1])
+
+    def test_split_mixed_dataset(self):
+        dataset = [[1, 0, 125000, 0], [0, 1, 100000, 0]]
+        expected_continuous_dataset = [[125000, 0], [100000, 0]]
+        expected_discrete_dataset = [[1, 0, 0], [0, 1, 0]]
+
+        continuous_columns = [0, 0, 1]
+        continuous_dataset, discrete_dataset = naive_bayes.split_mixed_dataset(dataset, continuous_columns)
+
+        self.assertEqual(expected_continuous_dataset, continuous_dataset)
+        self.assertEqual(expected_discrete_dataset, discrete_dataset)
+
+    def test_remove_last_column(self):
+        dataset = [[1, 0, 125000], [0, 1, 100000]]
+        expected_dataset = [[1, 0], [0, 1]]
+
+        dataset_without_last_column = naive_bayes.remove_last_column(dataset)
+
+        self.assertEqual(expected_dataset, dataset_without_last_column)
 
     def test_split_dataset(self):
         dataset = naive_bayes.load_csv(self.filename)
