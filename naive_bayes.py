@@ -15,8 +15,8 @@ from model_selection import get_accuracy
 from statistics import mean
 from statistics import stdev
 from util.csv import load_csv
-from util.data_munging import separate_by_class
-from util.data_munging import split_mixed_dataset
+from util.data import separate_by_class
+from util.data import split_mixed_dataset
 
 
 def main():

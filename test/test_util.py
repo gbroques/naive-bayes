@@ -3,9 +3,9 @@ import os
 import unittest
 
 from util.csv import load_csv
-from util.data_munging import remove_last_column
-from util.data_munging import separate_by_class
-from util.data_munging import split_mixed_dataset
+from util.data import remove_last_column
+from util.data import separate_by_class
+from util.data import split_mixed_dataset
 
 test_data = [[6, 148, 72, 35, 0, 33.6, 0.627, 50, 1],
              [1, 85, 66, 29, 0, 26.6, 0.351, 31, 0],
