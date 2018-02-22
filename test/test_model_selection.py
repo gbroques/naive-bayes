@@ -2,9 +2,9 @@ import csv
 import os
 import unittest
 
-import naive_bayes
 from model_selection import get_accuracy
 from model_selection import split_dataset
+from util.csv import load_csv
 
 test_data = [[6, 148, 72, 35, 0, 33.6, 0.627, 50, 1],
              [1, 85, 66, 29, 0, 26.6, 0.351, 31, 0],
@@ -30,7 +30,7 @@ class TestModelSelection(unittest.TestCase):
                 writer.writerow(row)
 
     def test_split_dataset(self):
-        dataset = naive_bayes.load_csv(self.filename)
+        dataset = load_csv(self.filename)
 
         split_ratio = 0.67
         train, test = split_dataset(dataset, split_ratio)
