@@ -14,6 +14,7 @@ from math import exp
 from math import pi
 from math import pow
 from math import sqrt
+from math import log
 
 from statistics import mean
 from statistics import stdev
@@ -67,7 +68,8 @@ class NaiveBayes:
 
         total_num_records = len(y)
         for label in self.label_counts:
-            self.priors[label] = self.label_counts[label] / total_num_records
+            prior_probability = self.label_counts[label] / total_num_records
+            self.priors[label] = log(prior_probability)
             for j in self._continuous_columns:
                 features = self.continuous_features[label][j]
                 avg = mean(features)
@@ -76,18 +78,18 @@ class NaiveBayes:
         return self
 
     def predict_record(self, test_record):
-        probabilities = dict.fromkeys(list(self.priors), 1.0)
-        for label in self.priors:
+        probabilities = dict.fromkeys(list(self.label_counts), 0)
+        for label in self.label_counts:
             for i, value in enumerate(test_record):
                 if i in self._continuous_columns:
                     gaussian_parameters = self.gaussian_parameters[label][i]
                     probability = self.gaussian_pdf(value, *gaussian_parameters)
-                    probabilities[label] *= probability
+                    probabilities[label] += log(probability)
                 else:
                     frequency = len(self.frequencies[label][i][value]) + 1
                     num_classes = len(self.frequencies[label][i])
                     probability = frequency / (self.label_counts[label] + num_classes)
-                    probabilities[label] *= probability
+                    probabilities[label] += log(probability)
         return max(probabilities, key=probabilities.get)
 
     @staticmethod
