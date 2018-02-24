@@ -2,7 +2,7 @@ import csv
 import os
 import unittest
 
-from util.csv import load_csv
+from util import load_csv
 
 test_data = [[6, 148, 72, 35, 0, 33.6, 0.627, 50, 1],
              [1, 85, 66, 29, 0, 26.6, 0.351, 31, 0],

@@ -14,7 +14,7 @@ Sources:
 
 from model_selection import get_accuracy
 from naive_bayes import NaiveBayes
-from util.csv import load_csv
+from util import load_csv
 
 
 def main():
