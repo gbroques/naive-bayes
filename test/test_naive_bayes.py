@@ -2,13 +2,8 @@ import unittest
 
 from naive_bayes import NaiveBayes
 
-test_data = [[6, 148, 72, 35, 0, 33.6, 0.627, 50, 1],
-             [1, 85, 66, 29, 0, 26.6, 0.351, 31, 0],
-             [8, 183, 64, 0, 0, 23.3, 0.672, 32, 1]]
-
 
 class TestNaiveBayes(unittest.TestCase):
-    filename = 'test.csv'
 
     @classmethod
     def setUpClass(cls):
@@ -28,11 +23,11 @@ class TestNaiveBayes(unittest.TestCase):
     def test_predict_record_with_binary_dataset(self):
         expected_prediction = 1
         dataset = self.get_toy_binary_dataset()
-        X = [row[:-1] for row in dataset]
-        y = [row[-1] for row in dataset]
+        design_matrix = [row[:-1] for row in dataset]
+        target_values = [row[-1] for row in dataset]
 
         clf = NaiveBayes()
-        clf.fit(X, y)
+        clf.fit(design_matrix, target_values)
         test_record = [0, 1, 0]
         prediction = clf.predict_record(test_record)
 

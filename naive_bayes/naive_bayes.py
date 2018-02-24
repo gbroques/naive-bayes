@@ -1,5 +1,7 @@
 """
 Naive Bayes implementation.
+Maximizes the log likelihood to prevent underflow,
+and applies Laplace smoothing to solve the zero observations problem.
 
 API inspired by SciKit-learn.
 Sources:
@@ -32,33 +34,33 @@ class NaiveBayes:
         self.gaussian_parameters = defaultdict(dict)
         self._continuous_columns = continuous_columns
 
-    def predict(self, X):
-        """Perform classification on test set X.
+    def predict(self, test_set):
+        """Predict target values for test set.
 
-        :param X: Test set with dimension m x n,
-                  where m is the number of samples,
-                  and n is the number of features.
-        :return: Predicted target values for X with dimension m,
-                 where m is the number of samples.
+        :param test_set: Test set with dimension m x n,
+                         where m is the number of examples,
+                         and n is the number of features.
+        :return: Predicted target values for test set with dimension m,
+                 where m is the number of examples.
         """
         predictions = []
-        for i in range(len(X)):
-            result = self.predict_record(X[i])
+        for i in range(len(test_set)):
+            result = self.predict_record(test_set[i])
             predictions.append(result)
         return predictions
 
-    def fit(self, X, y):
-        """Fit model according to training vectors X, and target values y.
+    def fit(self, design_matrix, target_values):
+        """Fit model according to design matrix and target values.
 
-        :param X: Training vectors with dimension m x n,
-                  where m is the number of samples,
-                  and n is the number of features.
-        :param y: Target values with dimension m,
-                  where m is the number of samples.
+        :param design_matrix: Training examples with dimension m x n,
+                              where m is the number of examples,
+                              and n is the number of features.
+        :param target_values: Target values with dimension m,
+                              where m is the number of examples.
         :return: self
         """
-        for i, feature in enumerate(X):
-            label = y[i]
+        for i, feature in enumerate(design_matrix):
+            label = target_values[i]
             self.label_counts[label] += 1
             for j, value in enumerate(feature):
                 if j in self._continuous_columns:
@@ -66,7 +68,7 @@ class NaiveBayes:
                 else:
                     self.frequencies[label][j][value].append(value)
 
-        total_num_records = len(y)
+        total_num_records = len(target_values)
         for label in self.label_counts:
             prior_probability = self.label_counts[label] / total_num_records
             self.priors[label] = log(prior_probability)
