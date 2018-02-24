@@ -22,10 +22,11 @@ def main():
     dataset = load_csv(filename)
     X = [row[:-1] for row in dataset]
     y = [row[-1] for row in dataset]
-    continuous_columns = [0, 0, 1]
+    continuous_columns = (2,)
     clf = NaiveBayes(continuous_columns)
     clf.fit(X, y)
     predictions = clf.predict(X)
+    print(predictions)
     accuracy = get_accuracy(dataset, predictions)
     print('Model Accuracy: {0}%'.format(accuracy))
 
