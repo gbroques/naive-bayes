@@ -12,7 +12,8 @@ class TestNaiveBayes(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.clf = NaiveBayes([])
+        continuous_columns = [0, 0, 1]
+        cls.clf = NaiveBayes(continuous_columns)
 
     def test_summarize(self):
         X = [[1, 20], [2, 21], [3, 22]]

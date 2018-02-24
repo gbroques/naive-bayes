@@ -5,7 +5,10 @@ Inspired from SciKit-learn.
 Source: https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/naive_bayes.py
 """
 
-import math
+from math import exp
+from math import pi
+from math import pow
+from math import sqrt
 
 from statistics import mean
 from statistics import stdev
@@ -131,5 +134,5 @@ class NaiveBayes:
         :param std_dev: Standard deviation.
         :return: Likelihood that the attribute belongs to the class.
         """
-        exponent = math.exp(-(math.pow(x - avg, 2) / (2 * math.pow(std_dev, 2))))
-        return (1 / (math.sqrt(2 * math.pi) * std_dev)) * exponent
+        exponent = exp(-(pow(x - avg, 2) / (2 * pow(std_dev, 2))))
+        return (1 / (sqrt(2 * pi) * std_dev)) * exponent
