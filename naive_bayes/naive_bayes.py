@@ -65,8 +65,9 @@ class NaiveBayes:
                 else:
                     self.frequencies[label][j][value].append(value)
 
+        total_num_records = len(y)
         for label in label_counts:
-            self.priors[label] = label_counts[label]
+            self.priors[label] = label_counts[label] / total_num_records
             for j in self._continuous_columns:
                 features = self.continuous_features[label][j]
                 avg = mean(features)
@@ -83,6 +84,7 @@ class NaiveBayes:
                     probability = self.gaussian_pdf(value, *gaussian_parameters)
                     probabilities[label] *= probability
                 else:
+                    # TODO: Add Laplace Smoothing
                     frequency = len(self.frequencies[label][i][value])
                     probability = frequency / self.priors[label]
                     probabilities[label] *= probability

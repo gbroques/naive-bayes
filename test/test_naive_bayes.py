@@ -26,14 +26,16 @@ class TestNaiveBayes(unittest.TestCase):
         self.assertAlmostEqual(expected_probability, probability)
 
     def test_predict_record_with_binary_dataset(self):
+        expected_prediction = 1
         dataset = self.get_toy_binary_dataset()
-        test_record = [0, 1, 0]
-        clf = NaiveBayes()
         X = [row[:-1] for row in dataset]
         y = [row[-1] for row in dataset]
+
+        clf = NaiveBayes()
         clf.fit(X, y)
+        test_record = [0, 1, 0]
         prediction = clf.predict_record(test_record)
-        expected_prediction = 1
+
         self.assertEqual(expected_prediction, prediction)
 
     @staticmethod
