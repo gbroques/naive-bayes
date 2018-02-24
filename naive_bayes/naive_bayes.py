@@ -24,7 +24,8 @@ class NaiveBayes:
         """Naive bayes constructor.
         :param continuous_columns: Indices of which columns contain continuous values.
         """
-        self.priors = Counter()
+        self.priors = defaultdict(dict)
+        self.label_counts = Counter()
         self.frequencies = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: [])))
         self.continuous_features = defaultdict(lambda: defaultdict(lambda: []))
         self.gaussian_parameters = defaultdict(dict)
@@ -55,10 +56,9 @@ class NaiveBayes:
                   where m is the number of samples.
         :return: self
         """
-        label_counts = dict.fromkeys(tuple(set(y)), 0)
         for i, feature in enumerate(X):
             label = y[i]
-            label_counts[label] += 1
+            self.label_counts[label] += 1
             for j, value in enumerate(feature):
                 if j in self._continuous_columns:
                     self.continuous_features[label][j].append(value)
@@ -66,8 +66,8 @@ class NaiveBayes:
                     self.frequencies[label][j][value].append(value)
 
         total_num_records = len(y)
-        for label in label_counts:
-            self.priors[label] = label_counts[label] / total_num_records
+        for label in self.label_counts:
+            self.priors[label] = self.label_counts[label] / total_num_records
             for j in self._continuous_columns:
                 features = self.continuous_features[label][j]
                 avg = mean(features)
@@ -84,9 +84,9 @@ class NaiveBayes:
                     probability = self.gaussian_pdf(value, *gaussian_parameters)
                     probabilities[label] *= probability
                 else:
-                    # TODO: Add Laplace Smoothing
-                    frequency = len(self.frequencies[label][i][value])
-                    probability = frequency / self.priors[label]
+                    frequency = len(self.frequencies[label][i][value]) + 1
+                    num_classes = len(self.frequencies[label][i])
+                    probability = frequency / (self.label_counts[label] + num_classes)
                     probabilities[label] *= probability
         return max(probabilities, key=probabilities.get)
 
