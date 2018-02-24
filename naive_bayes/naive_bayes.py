@@ -29,6 +29,7 @@ class NaiveBayes:
         """
         self.priors = defaultdict(dict)
         self.label_counts = Counter()
+        self.possible_categories = defaultdict(set)
         self.frequencies = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: [])))
         self.continuous_features = defaultdict(lambda: defaultdict(lambda: []))
         self.gaussian_parameters = defaultdict(dict)
@@ -67,6 +68,7 @@ class NaiveBayes:
                     self.continuous_features[label][j].append(value)
                 else:
                     self.frequencies[label][j][value].append(value)
+                    self.possible_categories[j].add(value)
 
         total_num_records = len(target_values)
         for label in self.label_counts:
@@ -89,7 +91,7 @@ class NaiveBayes:
                     probabilities[label] += log(probability)
                 else:
                     frequency = len(self.frequencies[label][i][value]) + 1
-                    num_classes = len(self.frequencies[label][i])
+                    num_classes = len(self.possible_categories[i])
                     probability = frequency / (self.label_counts[label] + num_classes)
                     probabilities[label] += log(probability)
         return max(probabilities, key=probabilities.get)
