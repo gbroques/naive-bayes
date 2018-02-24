@@ -1,10 +1,14 @@
 """
 Naive Bayes implementation.
 
-Inspired from SciKit-learn.
-Source: https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/naive_bayes.py
+API inspired by SciKit-learn.
+Sources:
+  https://machinelearningmastery.com/naive-bayes-classifier-scratch-python/
+  https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/naive_bayes.py
+  https://github.com/ashkonf/HybridNaiveBayes
 """
 
+import collections
 from math import exp
 from math import pi
 from math import pow
@@ -47,8 +51,34 @@ class NaiveBayes:
         :return: self
         """
         continuous_features, discrete_features = split_continuous_features(X, self._continuous_columns)
+        label_counts = dict.fromkeys(tuple(set(y)), 0)
+        self.feature_values = collections.defaultdict(
+            lambda: collections.defaultdict(lambda: collections.defaultdict(lambda: [])))
+        for i, feature in enumerate(discrete_features):
+            label = y[i]
+            label_counts[label] += 1
+            for j, value in enumerate(feature):
+                self.feature_values[label][j][value].append(value)
+
+        self.priors = collections.Counter()
+        for label in label_counts:
+            # A label count can never be 0 because we only generate
+            # a label count upon observing the first data point that
+            # belongs to it. As a result, we don't worrying about
+            # the argument to log being 0 here.
+            self.priors[label] = label_counts[label]
+
         self.summaries = self.summarize_by_class(continuous_features, y)
         return self
+
+    def predict_discrete(self, test_record):
+        probabilities = dict.fromkeys(list(self.priors), 1.0)
+        for label in self.priors:
+            for i, value in enumerate(test_record):
+                frequency = len(self.feature_values[label][i][value])
+                probability = frequency / self.priors[label]
+                probabilities[label] *= probability
+        return max(probabilities, key=probabilities.get)
 
     def summarize_by_class(self, X, y):
         """Get the mean and standard deviation of each attribute for the instances of each class.

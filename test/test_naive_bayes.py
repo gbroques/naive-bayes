@@ -80,6 +80,30 @@ class TestNaiveBayes(unittest.TestCase):
 
         self.assertEqual(expected_predictions, predictions)
 
+    def test_discrete_probability(self):
+        dataset = self.get_toy_binary_dataset()
+        test_record = [0, 1, 0]
+        clf = NaiveBayes([0, 0, 0])
+        X = [row[:-1] for row in dataset]
+        y = [row[-1] for row in dataset]
+        clf.fit(X, y)
+        prediction = clf.predict_discrete(test_record)
+        expected_prediction = 1
+        self.assertEqual(expected_prediction, prediction)
+
+    @staticmethod
+    def get_toy_binary_dataset():
+        return [[0, 0, 0, 1],
+                [0, 0, 1, 0],
+                [0, 1, 1, 0],
+                [0, 1, 1, 0],
+                [0, 0, 1, 1],
+                [1, 0, 1, 1],
+                [1, 0, 1, 0],
+                [1, 0, 1, 0],
+                [1, 1, 1, 1],
+                [1, 0, 1, 1]]
+
 
 if __name__ == '__main__':
     unittest.main()
