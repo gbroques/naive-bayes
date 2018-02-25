@@ -28,4 +28,4 @@ class ContinuousFeatureVectors(FeatureVectors):
     def probability(self, label, index):
         mean_variance = self.mean_variance[label][index]
         feature = self.get(label, index)
-        return gaussian_pdf(feature.value, *mean_variance)
+        return gaussian_pdf(feature[index], *mean_variance)

@@ -113,7 +113,8 @@ class NaiveBayes:
 
     def _get_probability(self, feature_index, feature, label):
         if feature.is_continuous():
-            probability = self.continuous_feature_vectors.probability(label, feature_index)
+            probability = self.continuous_feature_vectors.probability(label,
+                                                                      feature_index)
         else:
             probability = self.discrete_feature_vectors.probability(label,
                                                                     feature_index,

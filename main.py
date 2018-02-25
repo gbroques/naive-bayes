@@ -20,7 +20,6 @@ Sources:
 from datasets import load_loan_defaulters
 from feature import ContinuousFeature
 from feature import DiscreteFeature
-from model_selection import get_accuracy
 from naive_bayes import NaiveBayes
 
 
@@ -30,10 +29,9 @@ def main():
     target_values = [row[-1] for row in dataset]
     clf = NaiveBayes(extract_features)
     clf.fit(design_matrix, target_values)
-    predictions = clf.predict(design_matrix)
-    print(predictions)
-    accuracy = get_accuracy(dataset, predictions)
-    print('Model Accuracy: {0}%'.format(accuracy))
+    prediction = clf.predict_record([1, 1, 50700])
+    negation_word = " not " if prediction == 0.0 else ""
+    print("We predict this person will" + negation_word + "default on their loans.")
 
 
 def extract_features(feature_vector):
