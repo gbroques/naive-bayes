@@ -4,10 +4,11 @@ Maximizes the log likelihood to prevent underflow,
 and applies Laplace smoothing to solve the zero observations problem.
 
 API inspired by SciKit-learn.
+
 Sources:
-  https://machinelearningmastery.com/naive-bayes-classifier-scratch-python/
-  https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/naive_bayes.py
-  https://github.com/ashkonf/HybridNaiveBayes
+  * https://machinelearningmastery.com/naive-bayes-classifier-scratch-python/
+  * https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/naive_bayes.py
+  * https://github.com/ashkonf/HybridNaiveBayes
 """
 
 from collections import Counter
