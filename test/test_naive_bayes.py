@@ -4,6 +4,7 @@ from naive_bayes import NaiveBayes
 
 
 class TestNaiveBayesWithSixSeparablePoints(unittest.TestCase):
+    """Test the Naive Bayes classifier with a discrete toy dataset."""
 
     @classmethod
     def setUpClass(cls):
@@ -79,6 +80,15 @@ class TestNaiveBayesWithSixSeparablePoints(unittest.TestCase):
 
         self.assertEqual(expected_possible_categories, self.clf.possible_categories)
 
+    def test_continuous_features(self):
+        self.assertFalse(self.clf.continuous_features)
+
+    def test_gaussian_parameters(self):
+        self.assertFalse(self.clf.gaussian_parameters)
+
+    def test_continuous_columns(self):
+        self.assertFalse(len(self.clf._continuous_columns))
+
 
 class TestNaiveBayesWithBinaryDataset(unittest.TestCase):
     def test_predict_record_with_binary_dataset(self):
@@ -106,6 +116,9 @@ class TestNaiveBayesWithBinaryDataset(unittest.TestCase):
                 [1, 0, 1, 0],
                 [1, 1, 1, 1],
                 [1, 0, 1, 1]]
+
+
+# TODO: Add test class for continuous features
 
 
 if __name__ == '__main__':
