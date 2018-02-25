@@ -14,18 +14,17 @@ Sources:
 
 from model_selection import get_accuracy
 from naive_bayes import NaiveBayes
-from util import load_csv
+from datasets import load_loan_defaulters
 
 
 def main():
-    filename = 'loan-defaulters.csv'
-    dataset = load_csv(filename)
-    X = [row[:-1] for row in dataset]
-    y = [row[-1] for row in dataset]
+    dataset = load_loan_defaulters()
+    design_matrix = [row[:-1] for row in dataset]
+    target_values = [row[-1] for row in dataset]
     continuous_columns = (2,)
     clf = NaiveBayes(continuous_columns)
-    clf.fit(X, y)
-    predictions = clf.predict(X)
+    clf.fit(design_matrix, target_values)
+    predictions = clf.predict(design_matrix)
     print(predictions)
     accuracy = get_accuracy(dataset, predictions)
     print('Model Accuracy: {0}%'.format(accuracy))
