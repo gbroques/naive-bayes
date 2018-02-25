@@ -2,6 +2,7 @@ import unittest
 
 from datasets import load_loan_defaulters
 from exceptions import NotFittedError
+from exceptions import ZeroObservationsError
 from feature import ContinuousFeature
 from feature import DiscreteFeature
 from naive_bayes import NaiveBayes
@@ -77,7 +78,7 @@ class TestNaiveBayesWithSixSeparablePoints(unittest.TestCase):
                 }
             }
         }
-        self.assertEqual(expected_frequencies, self.clf.frequencies)
+        self.assertEqual(expected_frequencies, self.clf.discrete_feature_vectors.frequencies)
 
     def test_label_counts(self):
         expected_label_counts = {0: 3, 1: 3}
@@ -87,13 +88,13 @@ class TestNaiveBayesWithSixSeparablePoints(unittest.TestCase):
     def test_possible_categories(self):
         expected_possible_categories = {0: {-2, -1, 1, 2}, 1: {-2, -1, 1, 2}}
 
-        self.assertEqual(expected_possible_categories, self.clf.possible_categories)
+        self.assertEqual(expected_possible_categories, self.clf.discrete_feature_vectors.possible_categories)
 
     def test_continuous_features(self):
-        self.assertFalse(self.clf.continuous_features)
+        self.assertFalse(self.clf.continuous_feature_vectors.continuous_features)
 
     def test_mean_variance(self):
-        self.assertFalse(self.clf.mean_variance)
+        self.assertFalse(self.clf.continuous_feature_vectors.mean_variance)
 
     def test_raise_not_fitted_error_if_predict_is_called_before_predict(self):
         clf = NaiveBayes(lambda x: [DiscreteFeature(x[0])])
@@ -104,18 +105,29 @@ class TestNaiveBayesWithSixSeparablePoints(unittest.TestCase):
 class TestNaiveBayesWithBinaryDataset(unittest.TestCase):
     """Test the Naive Bayes classifier with a toy binary dataset."""
 
+    @classmethod
+    def setUpClass(cls):
+        dataset = cls.get_toy_binary_dataset()
+        cls.design_matrix = [row[:-1] for row in dataset]
+        cls.target_values = [row[-1] for row in dataset]
+
     def test_predict_record_with_binary_dataset(self):
         expected_prediction = 1
-        dataset = self.get_toy_binary_dataset()
-        design_matrix = [row[:-1] for row in dataset]
-        target_values = [row[-1] for row in dataset]
 
+        test_record = [1, 1, 0]
         clf = NaiveBayes(self.extract_features)
-        clf.fit(design_matrix, target_values)
-        test_record = [0, 1, 0]
+        clf.fit(self.design_matrix, self.target_values)
         prediction = clf.predict_record(test_record)
 
         self.assertEqual(expected_prediction, prediction)
+
+    def test_zero_observations_error(self):
+        clf = NaiveBayes(self.extract_features, use_smoothing=False)
+        clf.fit(self.design_matrix, self.target_values)
+
+        test_record = [0, 1, 0]
+        with self.assertRaises(ZeroObservationsError):
+            clf.predict_record(test_record)
 
     @staticmethod
     def extract_features(feature_vector):
@@ -125,14 +137,19 @@ class TestNaiveBayesWithBinaryDataset(unittest.TestCase):
 
     @staticmethod
     def get_toy_binary_dataset():
-        return [[0, 0, 0, 1],
-                [0, 0, 1, 0],
+        """The third with value 0 is never observed with class 0.
+
+        This is called the zero observations problem,
+        and is dealt with by additive smoothing.
+        """
+        return [[0, 0, 1, 0],
                 [0, 1, 1, 0],
                 [0, 1, 1, 0],
+                [1, 0, 1, 0],
+                [1, 0, 1, 0],
+                [0, 0, 0, 1],
                 [0, 0, 1, 1],
                 [1, 0, 1, 1],
-                [1, 0, 1, 0],
-                [1, 0, 1, 0],
                 [1, 1, 1, 1],
                 [1, 0, 1, 1]]
 
@@ -160,14 +177,14 @@ class TestNaiveBayesWithContinuousData(unittest.TestCase):
             }
         }
 
-        self.assertEqual(expected_continuous_features, self.clf.continuous_features)
+        self.assertEqual(expected_continuous_features, self.clf.continuous_feature_vectors.continuous_features)
 
     def test_mean_variance(self):
         expected_mean_variance = {
             0.0: {2: (110000.0, 2975000000.0)},
             1.0: {2: (90000.0, 25000000.0)}
         }
-        self.assertEqual(expected_mean_variance, self.clf.mean_variance)
+        self.assertEqual(expected_mean_variance, self.clf.continuous_feature_vectors.mean_variance)
 
     @staticmethod
     def extract_features(feature_vector):

@@ -7,13 +7,6 @@ class Feature(ABC):
         self.value = value
 
     @abstractmethod
-    def probability(self):
-        """Return the probability of the feature belonging to a label.
-
-        :return: The probability of the feature belonging to the label.
-        """
-
-    @abstractmethod
     def is_continuous(self):
         """Return whether the feature is continuous.
         :return: True if the feature is continuous.

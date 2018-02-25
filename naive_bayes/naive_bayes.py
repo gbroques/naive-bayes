@@ -16,22 +16,28 @@ from collections import defaultdict
 from math import log
 
 from exceptions import NotFittedError
-from statistics import gaussian_pdf
-from statistics import mean
-from statistics import variance
+from exceptions import ZeroObservationsError
+from feature import ContinuousFeatureVectors
+from feature import DiscreteFeatureVectors
 
 
 class NaiveBayes:
-    def __init__(self, extract_features):
-        """Naive bayes constructor.
+    """Hybrid implementation of Naive Bayes.
+
+    Supports discrete and continuous features.
+    """
+
+    def __init__(self, extract_features, use_smoothing=True):
+        """Create a naive bayes classifier.
+
         :param extract_features: Callback to map a feature vector to discrete and continuous features.
+        :param use_smoothing: Whether to use smoothing when calculating probability.
         """
         self.priors = defaultdict(dict)
+
         self.label_counts = Counter()
-        self.possible_categories = defaultdict(set)
-        self.frequencies = defaultdict(lambda: defaultdict(lambda: Counter()))
-        self.continuous_features = defaultdict(lambda: defaultdict(lambda: []))
-        self.mean_variance = defaultdict(dict)
+        self.discrete_feature_vectors = DiscreteFeatureVectors(use_smoothing)
+        self.continuous_feature_vectors = ContinuousFeatureVectors()
         self._extract_features = extract_features
         self._is_fitted = False
 
@@ -51,18 +57,14 @@ class NaiveBayes:
             features = self._extract_features(training_example)
             for j, feature in enumerate(features):
                 if feature.is_continuous():
-                    self.continuous_features[label][j].append(feature.value)
+                    self.continuous_feature_vectors.add(label, j, feature)
                 else:
-                    self.frequencies[label][j][feature.value] += 1
-                    self.possible_categories[j].add(feature.value)
+                    self.discrete_feature_vectors.add(label, j, feature)
 
         total_num_records = len(target_values)
-        for label in self.label_counts:
+        for label in set(target_values):
             self.priors[label] = self.label_counts[label] / total_num_records
-            if self.continuous_features:
-                for j in self.continuous_features[label]:
-                    features = self.continuous_features[label][j]
-                    self.mean_variance[label][j] = mean(features), variance(features)
+            self.continuous_feature_vectors.set_mean_variance(label)
 
         self._is_fitted = True
         return self
@@ -76,7 +78,7 @@ class NaiveBayes:
         :return: Predicted target values for test set with dimension m,
                  where m is the number of examples.
         """
-        self.check_is_fitted()
+        self._check_is_fitted()
 
         predictions = []
         for i in range(len(test_set)):
@@ -92,27 +94,40 @@ class NaiveBayes:
         :param test_record: Test record to predict a label for.
         :return: The predicted label.
         """
-        log_probabilities = {k: log(v) for k, v in self.priors.items()}
+        self._check_is_fitted()
+
+        log_likelihood = {k: log(v) for k, v in self.priors.items()}
         for label in self.label_counts:
             features = self._extract_features(test_record)
             for i, feature in enumerate(features):
                 probability = self._get_probability(i, feature, label)
-                log_probabilities[label] += log(probability)
-        return max(log_probabilities, key=log_probabilities.get)
+                try:
+                    log_likelihood[label] += log(probability)
+                except ValueError:
+                    raise ZeroObservationsError(self._get_zero_observations_error_message(feature, label))
+        return max(log_likelihood, key=log_likelihood.get)
 
-    def check_is_fitted(self):
+    @staticmethod
+    def _get_zero_observations_error_message(feature, label):
+        return ("Value " + str(feature.value) +
+                " never occurs with class " + str(label) +
+                ". Please set use_smoothing to True in the constructor.")
+
+    def _check_is_fitted(self):
         if not self._is_fitted:
-            raise NotFittedError("This instance of " +
-                                 self.__class__.__name__ +
-                                 " has not been fitted yet. Please call "
-                                 "'fit' before you call 'predict'.")
+            raise NotFittedError(self._get_not_fitted_error_message())
+
+    def _get_not_fitted_error_message(self):
+        return ("This instance of " + self.__class__.__name__ +
+                " has not been fitted yet. Please call "
+                "'fit' before you call 'predict'.")
 
     def _get_probability(self, feature_index, feature, label):
         if feature.is_continuous():
-            mean_variance = self.mean_variance[label][feature_index]
-            probability = gaussian_pdf(feature.value, *mean_variance)
+            probability = self.continuous_feature_vectors.probability(label, feature_index)
         else:
-            frequency = self.frequencies[label][feature_index][feature.value] + 1
-            num_classes = len(self.possible_categories[feature_index])
-            probability = frequency / (self.label_counts[label] + num_classes)
+            probability = self.discrete_feature_vectors.probability(label,
+                                                                    feature_index,
+                                                                    feature,
+                                                                    self.label_counts[label])
         return probability

@@ -2,4 +2,8 @@
 
 
 class NotFittedError(ValueError):
-    """A custom exception to raise if predict is called before fit."""
+    """Raise if predict is called before fit."""
+
+
+class ZeroObservationsError(ValueError):
+    """Raise when zero observations occur"""
