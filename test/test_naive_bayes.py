@@ -22,7 +22,7 @@ class TestNaiveBayesWithSixSeparablePoints(unittest.TestCase):
               ^
               | x
               | x x
-        <----------->
+        <-----+----->
           o o |
             o |
               v
@@ -84,8 +84,8 @@ class TestNaiveBayesWithSixSeparablePoints(unittest.TestCase):
     def test_continuous_features(self):
         self.assertFalse(self.clf.continuous_features)
 
-    def test_gaussian_parameters(self):
-        self.assertFalse(self.clf.gaussian_parameters)
+    def test_mean_variance(self):
+        self.assertFalse(self.clf.mean_variance)
 
     def test_continuous_columns(self):
         self.assertFalse(len(self.clf._continuous_columns))

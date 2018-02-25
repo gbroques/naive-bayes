@@ -18,7 +18,7 @@ from math import log
 from exceptions import NotFittedError
 from statistics import gaussian_pdf
 from statistics import mean
-from statistics import stdev
+from statistics import variance
 
 
 class NaiveBayes:
@@ -31,7 +31,7 @@ class NaiveBayes:
         self.possible_categories = defaultdict(set)
         self.frequencies = defaultdict(lambda: defaultdict(lambda: Counter()))
         self.continuous_features = defaultdict(lambda: defaultdict(lambda: []))
-        self.gaussian_parameters = defaultdict(dict)
+        self.mean_variance = defaultdict(dict)
         self._continuous_columns = continuous_columns
         self._is_fitted = False
 
@@ -60,9 +60,7 @@ class NaiveBayes:
             self.priors[label] = self.label_counts[label] / total_num_records
             for j in self._continuous_columns:
                 features = self.continuous_features[label][j]
-                avg = mean(features)
-                std_dev = stdev(features)
-                self.gaussian_parameters[label][j] = avg, std_dev
+                self.mean_variance[label][j] = mean(features), variance(features)
 
         self._is_fitted = True
         return self
@@ -89,8 +87,8 @@ class NaiveBayes:
         for label in self.label_counts:
             for i, value in enumerate(test_record):
                 if i in self._continuous_columns:
-                    gaussian_parameters = self.gaussian_parameters[label][i]
-                    probability = gaussian_pdf(value, *gaussian_parameters)
+                    mean_variance = self.mean_variance[label][i]
+                    probability = gaussian_pdf(value, *mean_variance)
                     log_probabilities[label] += log(probability)
                 else:
                     frequency = self.frequencies[label][i][value] + 1
