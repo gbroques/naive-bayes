@@ -104,23 +104,12 @@ class NaiveBayes:
                 try:
                     log_likelihood[label] += log(probability)
                 except ValueError:
-                    raise ZeroObservationsError(self._get_zero_observations_error_message(feature, label))
+                    raise ZeroObservationsError(feature.value, label)
         return max(log_likelihood, key=log_likelihood.get)
-
-    @staticmethod
-    def _get_zero_observations_error_message(feature, label):
-        return ("Value " + str(feature.value) +
-                " never occurs with class " + str(label) +
-                ". Please set use_smoothing to True in the constructor.")
 
     def _check_is_fitted(self):
         if not self._is_fitted:
-            raise NotFittedError(self._get_not_fitted_error_message())
-
-    def _get_not_fitted_error_message(self):
-        return ("This instance of " + self.__class__.__name__ +
-                " has not been fitted yet. Please call "
-                "'fit' before you call 'predict'.")
+            raise NotFittedError(self.__class__.__name__)
 
     def _get_probability(self, feature_index, feature, label):
         if feature.is_continuous():
