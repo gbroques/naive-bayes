@@ -28,7 +28,6 @@ def main():
     dataset = load_loan_defaulters()
     design_matrix = [row[:-1] for row in dataset]
     target_values = [row[-1] for row in dataset]
-    continuous_columns = (2,)
     clf = NaiveBayes(extract_features)
     clf.fit(design_matrix, target_values)
     predictions = clf.predict(design_matrix)
@@ -37,11 +36,12 @@ def main():
     print('Model Accuracy: {0}%'.format(accuracy))
 
 
-def extract_features(example):
+def extract_features(feature_vector):
+    """Maps a feature vector to whether each feature is continuous or discrete."""
     return [
-        DiscreteFeature(example[0]),
-        DiscreteFeature(example[1]),
-        ContinuousFeature(example[2])
+        DiscreteFeature(feature_vector[0]),
+        DiscreteFeature(feature_vector[1]),
+        ContinuousFeature(feature_vector[2])
     ]
 
 

@@ -1,5 +1,6 @@
 import os
 
+from config import ROOT_DIR
 from util import load_csv
 
 
@@ -30,5 +31,5 @@ def _load_dataset(filename):
 
 
 def _get_path(filename):
-    path = os.path.join('datasets', 'data', filename)
+    path = os.path.join(ROOT_DIR, 'datasets', 'data', filename)
     return os.path.abspath(path)

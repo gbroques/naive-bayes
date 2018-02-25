@@ -60,7 +60,8 @@ class NaiveBayes:
         for label in self.label_counts:
             self.priors[label] = self.label_counts[label] / total_num_records
             if self.continuous_features:
-                for j, features in enumerate(self.continuous_features[label]):
+                for j in self.continuous_features[label]:
+                    features = self.continuous_features[label][j]
                     self.mean_variance[label][j] = mean(features), variance(features)
 
         self._is_fitted = True

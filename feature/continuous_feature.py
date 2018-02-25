@@ -13,7 +13,7 @@ class ContinuousFeature(Feature):
         return gaussian_pdf(self.value, self.mean, self.variance)
 
     def is_continuous(self):
-        super().is_continuous()
+        return True
 
     def is_discrete(self):
-        super().is_discrete()
+        return False

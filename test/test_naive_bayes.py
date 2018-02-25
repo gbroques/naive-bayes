@@ -1,6 +1,8 @@
 import unittest
 
+from datasets import load_loan_defaulters
 from exceptions import NotFittedError
+from feature import ContinuousFeature
 from feature import DiscreteFeature
 from naive_bayes import NaiveBayes
 
@@ -100,6 +102,8 @@ class TestNaiveBayesWithSixSeparablePoints(unittest.TestCase):
 
 
 class TestNaiveBayesWithBinaryDataset(unittest.TestCase):
+    """Test the Naive Bayes classifier with a toy binary dataset."""
+
     def test_predict_record_with_binary_dataset(self):
         expected_prediction = 1
         dataset = self.get_toy_binary_dataset()
@@ -133,7 +137,45 @@ class TestNaiveBayesWithBinaryDataset(unittest.TestCase):
                 [1, 0, 1, 1]]
 
 
-# TODO: Add test class for continuous features
+class TestNaiveBayesWithContinuousData(unittest.TestCase):
+    """Test the Naive Bayes classifier with continuous data."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.dataset = load_loan_defaulters()
+        cls.design_matrix = [row[:-1] for row in cls.dataset]
+        cls.target_values = [row[-1] for row in cls.dataset]
+
+        cls.clf = NaiveBayes(cls.extract_features)
+        cls.clf.fit(cls.design_matrix, cls.target_values)
+
+    def test_continuous_features(self):
+        expected_continuous_features = {
+            0.0: {  # Class Label
+                # Continuous feature index and list of feature values belonging to class
+                2: [125000.0, 100000.0, 70000.0, 120000.0, 60000.0, 220000.0, 75000.0]
+            },
+            1.0: {
+                2: [95000.0, 85000.0, 90000.0]
+            }
+        }
+
+        self.assertEqual(expected_continuous_features, self.clf.continuous_features)
+
+    def test_mean_variance(self):
+        expected_mean_variance = {
+            0.0: {2: (110000.0, 2975000000.0)},
+            1.0: {2: (90000.0, 25000000.0)}
+        }
+        self.assertEqual(expected_mean_variance, self.clf.mean_variance)
+
+    @staticmethod
+    def extract_features(feature_vector):
+        return [
+            DiscreteFeature(feature_vector[0]),
+            DiscreteFeature(feature_vector[1]),
+            ContinuousFeature(feature_vector[2])
+        ]
 
 
 if __name__ == '__main__':
