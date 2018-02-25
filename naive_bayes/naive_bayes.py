@@ -15,6 +15,7 @@ from collections import Counter
 from collections import defaultdict
 from math import log
 
+from exceptions import NotFittedError
 from statistics import gaussian_pdf
 from statistics import mean
 from statistics import stdev
@@ -32,21 +33,7 @@ class NaiveBayes:
         self.continuous_features = defaultdict(lambda: defaultdict(lambda: []))
         self.gaussian_parameters = defaultdict(dict)
         self._continuous_columns = continuous_columns
-
-    def predict(self, test_set):
-        """Predict target values for test set.
-
-        :param test_set: Test set with dimension m x n,
-                         where m is the number of examples,
-                         and n is the number of features.
-        :return: Predicted target values for test set with dimension m,
-                 where m is the number of examples.
-        """
-        predictions = []
-        for i in range(len(test_set)):
-            result = self.predict_record(test_set[i])
-            predictions.append(result)
-        return predictions
+        self._is_fitted = False
 
     def fit(self, design_matrix, target_values):
         """Fit model according to design matrix and target values.
@@ -76,7 +63,26 @@ class NaiveBayes:
                 avg = mean(features)
                 std_dev = stdev(features)
                 self.gaussian_parameters[label][j] = avg, std_dev
+
+        self._is_fitted = True
         return self
+
+    def predict(self, test_set):
+        """Predict target values for test set.
+
+        :param test_set: Test set with dimension m x n,
+                         where m is the number of examples,
+                         and n is the number of features.
+        :return: Predicted target values for test set with dimension m,
+                 where m is the number of examples.
+        """
+        self.check_is_fitted()
+
+        predictions = []
+        for i in range(len(test_set)):
+            result = self.predict_record(test_set[i])
+            predictions.append(result)
+        return predictions
 
     def predict_record(self, test_record):
         log_probabilities = {k: log(v) for k, v in self.priors.items()}
@@ -92,3 +98,10 @@ class NaiveBayes:
                     probability = frequency / (self.label_counts[label] + num_classes)
                     log_probabilities[label] += log(probability)
         return max(log_probabilities, key=log_probabilities.get)
+
+    def check_is_fitted(self):
+        if not self._is_fitted:
+            raise NotFittedError("This instance of " +
+                                 self.__class__.__name__ +
+                                 " has not been fitted yet. Please call "
+                                 "'fit' before you call 'predict'.")

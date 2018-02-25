@@ -1,5 +1,6 @@
 import unittest
 
+from exceptions import NotFittedError
 from naive_bayes import NaiveBayes
 
 
@@ -88,6 +89,11 @@ class TestNaiveBayesWithSixSeparablePoints(unittest.TestCase):
 
     def test_continuous_columns(self):
         self.assertFalse(len(self.clf._continuous_columns))
+
+    def test_raise_not_fitted_error_if_predict_is_called_before_predict(self):
+        clf = NaiveBayes()
+        with self.assertRaises(NotFittedError):
+            clf.predict([0, 0, 1])
 
 
 class TestNaiveBayesWithBinaryDataset(unittest.TestCase):
