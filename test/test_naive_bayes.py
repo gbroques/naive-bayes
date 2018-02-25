@@ -3,60 +3,16 @@ import unittest
 from naive_bayes import NaiveBayes
 
 
-class TestNaiveBayes(unittest.TestCase):
+class TestNaiveBayesWithSixSeparablePoints(unittest.TestCase):
 
-    def test_fit_and_predict(self):
-        dataset = self.get_six_separable_points()
-        design_matrix = [row[:-1] for row in dataset]
-        target_values = [row[-1] for row in dataset]
+    @classmethod
+    def setUpClass(cls):
+        cls.dataset = cls.get_six_separable_points()
+        cls.design_matrix = [row[:-1] for row in cls.dataset]
+        cls.target_values = [row[-1] for row in cls.dataset]
 
-        clf = NaiveBayes()
-        clf.fit(design_matrix, target_values)
-        predictions = clf.predict(design_matrix)
-
-        self.assertEqual(target_values, predictions)
-
-    def test_priors(self):
-        expected_priors = {0: 0.5, 1: 0.5}
-        dataset = self.get_six_separable_points()
-        design_matrix = [row[:-1] for row in dataset]
-        target_values = [row[-1] for row in dataset]
-
-        clf = NaiveBayes()
-        clf.fit(design_matrix, target_values)
-
-        self.assertEqual(expected_priors, clf.priors)
-
-    def test_frequencies(self):
-        expected_frequencies = {
-            0: {  # Class
-                0: {  # Column Index
-                    -2: 1,  # Occurrences of a particular value for the given class and column
-                    -1: 2
-                },
-                1: {
-                    -1: 2,
-                    -2: 1
-                }
-            },
-            1: {
-                0: {
-                    1: 2,
-                    2: 1
-                },
-                1: {
-                    1: 2,
-                    2: 1
-                }
-            }
-        }
-        dataset = self.get_six_separable_points()
-        design_matrix = [row[:-1] for row in dataset]
-        target_values = [row[-1] for row in dataset]
-
-        clf = NaiveBayes()
-        clf.fit(design_matrix, target_values)
-        self.assertEqual(expected_frequencies, clf.frequencies)
+        cls.clf = NaiveBayes()
+        cls.clf.fit(cls.design_matrix, cls.target_values)
 
     @staticmethod
     def get_six_separable_points():
@@ -78,6 +34,48 @@ class TestNaiveBayes(unittest.TestCase):
                 [1, 2, 1],
                 [2, 1, 1]]
 
+    def test_predict(self):
+        predictions = self.clf.predict(self.design_matrix)
+
+        self.assertEqual(self.target_values, predictions)
+
+    def test_priors(self):
+        expected_priors = {0: 0.5, 1: 0.5}
+
+        self.assertEqual(expected_priors, self.clf.priors)
+
+    def test_frequencies(self):
+        expected_frequencies = {
+            0: {  # Class
+                0: {  # Column Index
+                    -2: 1,  # Frequency of a particular value for the given class and column
+                    -1: 2
+                },
+                1: {
+                    -1: 2,
+                    -2: 1
+                }
+            },
+            1: {
+                0: {
+                    1: 2,
+                    2: 1
+                },
+                1: {
+                    1: 2,
+                    2: 1
+                }
+            }
+        }
+        self.assertEqual(expected_frequencies, self.clf.frequencies)
+
+    def test_label_counts(self):
+        expected_label_counts = {0: 3, 1: 3}
+
+        self.assertEqual(expected_label_counts, self.clf.label_counts)
+
+
+class TestNaiveBayesWithBinaryDataset(unittest.TestCase):
     def test_predict_record_with_binary_dataset(self):
         expected_prediction = 1
         dataset = self.get_toy_binary_dataset()
