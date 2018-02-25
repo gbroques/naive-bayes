@@ -74,6 +74,11 @@ class TestNaiveBayesWithSixSeparablePoints(unittest.TestCase):
 
         self.assertEqual(expected_label_counts, self.clf.label_counts)
 
+    def test_possible_categories(self):
+        expected_possible_categories = {0: {-2, -1, 1, 2}, 1: {-2, -1, 1, 2}}
+
+        self.assertEqual(expected_possible_categories, self.clf.possible_categories)
+
 
 class TestNaiveBayesWithBinaryDataset(unittest.TestCase):
     def test_predict_record_with_binary_dataset(self):
