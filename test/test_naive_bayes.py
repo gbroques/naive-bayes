@@ -27,6 +27,37 @@ class TestNaiveBayes(unittest.TestCase):
 
         self.assertEqual(expected_priors, clf.priors)
 
+    def test_frequencies(self):
+        expected_frequencies = {
+            0: {  # Class
+                0: {  # Column Index
+                    -2: 1,  # Occurrences of a particular value for the given class and column
+                    -1: 2
+                },
+                1: {
+                    -1: 2,
+                    -2: 1
+                }
+            },
+            1: {
+                0: {
+                    1: 2,
+                    2: 1
+                },
+                1: {
+                    1: 2,
+                    2: 1
+                }
+            }
+        }
+        dataset = self.get_six_separable_points()
+        design_matrix = [row[:-1] for row in dataset]
+        target_values = [row[-1] for row in dataset]
+
+        clf = NaiveBayes()
+        clf.fit(design_matrix, target_values)
+        self.assertEqual(expected_frequencies, clf.frequencies)
+
     @staticmethod
     def get_six_separable_points():
         """Six separable points in a plane.

@@ -27,7 +27,7 @@ class NaiveBayes:
         self.priors = defaultdict(dict)
         self.label_counts = Counter()
         self.possible_categories = defaultdict(set)
-        self.frequencies = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: [])))
+        self.frequencies = defaultdict(lambda: defaultdict(lambda: Counter()))
         self.continuous_features = defaultdict(lambda: defaultdict(lambda: []))
         self.gaussian_parameters = defaultdict(dict)
         self._continuous_columns = continuous_columns
@@ -64,7 +64,7 @@ class NaiveBayes:
                 if j in self._continuous_columns:
                     self.continuous_features[label][j].append(value)
                 else:
-                    self.frequencies[label][j][value].append(value)
+                    self.frequencies[label][j][value] += 1
                     self.possible_categories[j].add(value)
 
         total_num_records = len(target_values)
@@ -86,7 +86,7 @@ class NaiveBayes:
                     probability = gaussian_pdf(value, *gaussian_parameters)
                     log_probabilities[label] += log(probability)
                 else:
-                    frequency = len(self.frequencies[label][i][value]) + 1
+                    frequency = self.frequencies[label][i][value] + 1
                     num_classes = len(self.possible_categories[i])
                     probability = frequency / (self.label_counts[label] + num_classes)
                     log_probabilities[label] += log(probability)
