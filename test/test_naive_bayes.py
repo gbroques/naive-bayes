@@ -1,6 +1,7 @@
 import unittest
 
 from exceptions import NotFittedError
+from feature import DiscreteFeature
 from naive_bayes import NaiveBayes
 
 
@@ -13,7 +14,7 @@ class TestNaiveBayesWithSixSeparablePoints(unittest.TestCase):
         cls.design_matrix = [row[:-1] for row in cls.dataset]
         cls.target_values = [row[-1] for row in cls.dataset]
 
-        cls.clf = NaiveBayes()
+        cls.clf = NaiveBayes(cls.extract_features)
         cls.clf.fit(cls.design_matrix, cls.target_values)
 
     @staticmethod
@@ -35,6 +36,11 @@ class TestNaiveBayesWithSixSeparablePoints(unittest.TestCase):
                 [1, 1, 1],
                 [1, 2, 1],
                 [2, 1, 1]]
+
+    @staticmethod
+    def extract_features(example):
+        return [DiscreteFeature(example[0]),
+                DiscreteFeature(example[1])]
 
     def test_predict(self):
         predictions = self.clf.predict(self.design_matrix)
@@ -87,13 +93,10 @@ class TestNaiveBayesWithSixSeparablePoints(unittest.TestCase):
     def test_mean_variance(self):
         self.assertFalse(self.clf.mean_variance)
 
-    def test_continuous_columns(self):
-        self.assertFalse(len(self.clf._continuous_columns))
-
     def test_raise_not_fitted_error_if_predict_is_called_before_predict(self):
-        clf = NaiveBayes()
+        clf = NaiveBayes(lambda x: [DiscreteFeature(x[0])])
         with self.assertRaises(NotFittedError):
-            clf.predict([0, 0, 1])
+            clf.predict([0, 1])
 
 
 class TestNaiveBayesWithBinaryDataset(unittest.TestCase):
@@ -103,12 +106,18 @@ class TestNaiveBayesWithBinaryDataset(unittest.TestCase):
         design_matrix = [row[:-1] for row in dataset]
         target_values = [row[-1] for row in dataset]
 
-        clf = NaiveBayes()
+        clf = NaiveBayes(self.extract_features)
         clf.fit(design_matrix, target_values)
         test_record = [0, 1, 0]
         prediction = clf.predict_record(test_record)
 
         self.assertEqual(expected_prediction, prediction)
+
+    @staticmethod
+    def extract_features(feature_vector):
+        return [DiscreteFeature(feature_vector[0]),
+                DiscreteFeature(feature_vector[1]),
+                DiscreteFeature(feature_vector[2])]
 
     @staticmethod
     def get_toy_binary_dataset():

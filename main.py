@@ -17,9 +17,11 @@ Sources:
   * https://github.com/ashkonf/HybridNaiveBayes
 """
 
+from datasets import load_loan_defaulters
+from feature import ContinuousFeature
+from feature import DiscreteFeature
 from model_selection import get_accuracy
 from naive_bayes import NaiveBayes
-from datasets import load_loan_defaulters
 
 
 def main():
@@ -27,12 +29,20 @@ def main():
     design_matrix = [row[:-1] for row in dataset]
     target_values = [row[-1] for row in dataset]
     continuous_columns = (2,)
-    clf = NaiveBayes(continuous_columns)
+    clf = NaiveBayes(extract_features)
     clf.fit(design_matrix, target_values)
     predictions = clf.predict(design_matrix)
     print(predictions)
     accuracy = get_accuracy(dataset, predictions)
     print('Model Accuracy: {0}%'.format(accuracy))
+
+
+def extract_features(example):
+    return [
+        DiscreteFeature(example[0]),
+        DiscreteFeature(example[1]),
+        ContinuousFeature(example[2])
+    ]
 
 
 if __name__ == '__main__':

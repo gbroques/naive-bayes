@@ -22,9 +22,9 @@ from statistics import variance
 
 
 class NaiveBayes:
-    def __init__(self, continuous_columns=()):
+    def __init__(self, extract_features):
         """Naive bayes constructor.
-        :param continuous_columns: Indices of which columns contain continuous values.
+        :param extract_features: Callback to map a feature vector to discrete and continuous features.
         """
         self.priors = defaultdict(dict)
         self.label_counts = Counter()
@@ -32,7 +32,7 @@ class NaiveBayes:
         self.frequencies = defaultdict(lambda: defaultdict(lambda: Counter()))
         self.continuous_features = defaultdict(lambda: defaultdict(lambda: []))
         self.mean_variance = defaultdict(dict)
-        self._continuous_columns = continuous_columns
+        self._extract_features = extract_features
         self._is_fitted = False
 
     def fit(self, design_matrix, target_values):
@@ -45,22 +45,23 @@ class NaiveBayes:
                               where m is the number of examples.
         :return: self
         """
-        for i, feature in enumerate(design_matrix):
+        for i, training_example in enumerate(design_matrix):
             label = target_values[i]
             self.label_counts[label] += 1
-            for j, value in enumerate(feature):
-                if j in self._continuous_columns:
-                    self.continuous_features[label][j].append(value)
+            features = self._extract_features(training_example)
+            for j, feature in enumerate(features):
+                if feature.is_continuous():
+                    self.continuous_features[label][j].append(feature.value)
                 else:
-                    self.frequencies[label][j][value] += 1
-                    self.possible_categories[j].add(value)
+                    self.frequencies[label][j][feature.value] += 1
+                    self.possible_categories[j].add(feature.value)
 
         total_num_records = len(target_values)
         for label in self.label_counts:
             self.priors[label] = self.label_counts[label] / total_num_records
-            for j in self._continuous_columns:
-                features = self.continuous_features[label][j]
-                self.mean_variance[label][j] = mean(features), variance(features)
+            if self.continuous_features:
+                for j, features in enumerate(self.continuous_features[label]):
+                    self.mean_variance[label][j] = mean(features), variance(features)
 
         self._is_fitted = True
         return self
@@ -83,18 +84,19 @@ class NaiveBayes:
         return predictions
 
     def predict_record(self, test_record):
+        """Predict the label for the test record.
+
+        Maximizes the log likelihood to prevent underflow.
+
+        :param test_record: Test record to predict a label for.
+        :return: The predicted label.
+        """
         log_probabilities = {k: log(v) for k, v in self.priors.items()}
         for label in self.label_counts:
-            for i, value in enumerate(test_record):
-                if i in self._continuous_columns:
-                    mean_variance = self.mean_variance[label][i]
-                    probability = gaussian_pdf(value, *mean_variance)
-                    log_probabilities[label] += log(probability)
-                else:
-                    frequency = self.frequencies[label][i][value] + 1
-                    num_classes = len(self.possible_categories[i])
-                    probability = frequency / (self.label_counts[label] + num_classes)
-                    log_probabilities[label] += log(probability)
+            features = self._extract_features(test_record)
+            for i, feature in enumerate(features):
+                probability = self._get_probability(i, feature, label)
+                log_probabilities[label] += log(probability)
         return max(log_probabilities, key=log_probabilities.get)
 
     def check_is_fitted(self):
@@ -103,3 +105,13 @@ class NaiveBayes:
                                  self.__class__.__name__ +
                                  " has not been fitted yet. Please call "
                                  "'fit' before you call 'predict'.")
+
+    def _get_probability(self, feature_index, feature, label):
+        if feature.is_continuous():
+            mean_variance = self.mean_variance[label][feature_index]
+            probability = gaussian_pdf(feature.value, *mean_variance)
+        else:
+            frequency = self.frequencies[label][feature_index][feature.value] + 1
+            num_classes = len(self.possible_categories[feature_index])
+            probability = frequency / (self.label_counts[label] + num_classes)
+        return probability
