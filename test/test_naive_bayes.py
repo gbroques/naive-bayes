@@ -5,20 +5,47 @@ from naive_bayes import NaiveBayes
 
 class TestNaiveBayes(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        continuous_columns = (2,)
-        cls.clf = NaiveBayes(continuous_columns)
+    def test_fit_and_predict(self):
+        dataset = self.get_six_separable_points()
+        design_matrix = [row[:-1] for row in dataset]
+        target_values = [row[-1] for row in dataset]
 
-    def test_gaussian_pdf(self):
-        expected_probability = 0.0624896575937
-        x = 71.5
-        mean = 73
-        stdev = 6.2
+        clf = NaiveBayes()
+        clf.fit(design_matrix, target_values)
+        predictions = clf.predict(design_matrix)
 
-        probability = self.clf.gaussian_pdf(x, mean, stdev)
+        self.assertEqual(target_values, predictions)
 
-        self.assertAlmostEqual(expected_probability, probability)
+    def test_priors(self):
+        expected_priors = {0: 0.5, 1: 0.5}
+        dataset = self.get_six_separable_points()
+        design_matrix = [row[:-1] for row in dataset]
+        target_values = [row[-1] for row in dataset]
+
+        clf = NaiveBayes()
+        clf.fit(design_matrix, target_values)
+
+        self.assertEqual(expected_priors, clf.priors)
+
+    @staticmethod
+    def get_six_separable_points():
+        """Six separable points in a plane.
+              ^
+              | x
+              | x x
+        <----------->
+          o o |
+            o |
+              v
+        x - Denotes positive class "1"
+        o - Denotes negative class "0"
+        """
+        return [[-2, -1, 0],
+                [-1, -1, 0],
+                [-1, -2, 0],
+                [1, 1, 1],
+                [1, 2, 1],
+                [2, 1, 1]]
 
     def test_predict_record_with_binary_dataset(self):
         expected_prediction = 1

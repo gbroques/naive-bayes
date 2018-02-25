@@ -1,4 +1,7 @@
-import math
+from math import exp
+from math import pi
+from math import pow
+from math import sqrt
 
 
 def mean(numbers):
@@ -24,4 +27,16 @@ def stdev(numbers):
     distances_to_mean = [pow(x - avg, 2) for x in numbers]
     total = float(len(numbers))
     variance = sum(distances_to_mean) / (total - 1)
-    return math.sqrt(variance)
+    return sqrt(variance)
+
+
+def gaussian_pdf(x, avg, std_dev):
+    """Calculate gaussian probability density function.
+
+    :param x: Attribute value.
+    :param avg: Mean or average.
+    :param std_dev: Standard deviation.
+    :return: Likelihood that the attribute belongs to the class.
+    """
+    exponent = exp(-(pow(x - avg, 2) / (2 * pow(std_dev, 2))))
+    return (1 / (sqrt(2 * pi) * std_dev)) * exponent

@@ -12,12 +12,9 @@ Sources:
 
 from collections import Counter
 from collections import defaultdict
-from math import exp
-from math import pi
-from math import pow
-from math import sqrt
 from math import log
 
+from statistics import gaussian_pdf
 from statistics import mean
 from statistics import stdev
 
@@ -72,8 +69,7 @@ class NaiveBayes:
 
         total_num_records = len(target_values)
         for label in self.label_counts:
-            prior_probability = self.label_counts[label] / total_num_records
-            self.priors[label] = log(prior_probability)
+            self.priors[label] = self.label_counts[label] / total_num_records
             for j in self._continuous_columns:
                 features = self.continuous_features[label][j]
                 avg = mean(features)
@@ -82,28 +78,16 @@ class NaiveBayes:
         return self
 
     def predict_record(self, test_record):
-        probabilities = dict.fromkeys(list(self.label_counts), 0)
+        log_probabilities = {k: log(v) for k, v in self.priors.items()}
         for label in self.label_counts:
             for i, value in enumerate(test_record):
                 if i in self._continuous_columns:
                     gaussian_parameters = self.gaussian_parameters[label][i]
-                    probability = self.gaussian_pdf(value, *gaussian_parameters)
-                    probabilities[label] += log(probability)
+                    probability = gaussian_pdf(value, *gaussian_parameters)
+                    log_probabilities[label] += log(probability)
                 else:
                     frequency = len(self.frequencies[label][i][value]) + 1
                     num_classes = len(self.possible_categories[i])
                     probability = frequency / (self.label_counts[label] + num_classes)
-                    probabilities[label] += log(probability)
-        return max(probabilities, key=probabilities.get)
-
-    @staticmethod
-    def gaussian_pdf(x, avg, std_dev):
-        """Calculate gaussian probability density function.
-
-        :param x: Attribute value.
-        :param avg: Mean or average.
-        :param std_dev: Standard deviation.
-        :return: Likelihood that the attribute belongs to the class.
-        """
-        exponent = exp(-(pow(x - avg, 2) / (2 * pow(std_dev, 2))))
-        return (1 / (sqrt(2 * pi) * std_dev)) * exponent
+                    log_probabilities[label] += log(probability)
+        return max(log_probabilities, key=log_probabilities.get)
