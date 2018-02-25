@@ -6,4 +6,4 @@ class NotFittedError(ValueError):
 
 
 class ZeroObservationsError(ValueError):
-    """Raise when zero observations occur"""
+    """Raise in place of ValueError when calculating natural log of zero."""
