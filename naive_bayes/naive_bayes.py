@@ -103,8 +103,8 @@ class NaiveBayes:
                 probability = self._get_probability(i, feature, label)
                 try:
                     log_likelihood[label] += log(probability)
-                except ValueError:
-                    raise ZeroObservationsError(feature.value, label)
+                except ValueError as e:
+                    raise ZeroObservationsError(feature.value, label) from e
         return max(log_likelihood, key=log_likelihood.get)
 
     def _check_is_fitted(self):
